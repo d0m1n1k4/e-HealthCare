@@ -30,20 +30,21 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        firebaseAuth = FirebaseAuth.getInstance();
-        emailEt = findViewById(R.id.email);
+        firebaseAuth = FirebaseAuth.getInstance(); // Inicjalizacja Firebase Authentication
+        emailEt = findViewById(R.id.email);      // Inicjalizacja elementów interfejsu użytkownika
         passwordEt = findViewById(R.id.password);
         SignInButton=findViewById(R.id.login);
         progressDialog = new ProgressDialog(this);
         SignUpTextV = findViewById(R.id.signUpTextV);
-        SignInButton.setOnClickListener(new View.OnClickListener() {
+        SignInButton.setOnClickListener(new View.OnClickListener() {  //Nasłuchiwanie kliknięcia na przycisk Logowania
             @Override
             public void onClick(View v) {
                 Login();
 
             }
         });
-        SignUpTextV.setOnClickListener(new View.OnClickListener() {
+        SignUpTextV.setOnClickListener(new View.OnClickListener() { // Nasłuchiwanie kliknięcia na TextView "Sign Up"
+
             @Override
             public void onClick(View v) {
                 Intent intent=new Intent(MainActivity.this, SignUpActivity.class);
@@ -70,12 +71,13 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
                 if(task.isSuccessful()){
-                    Toast.makeText(MainActivity.this, "Successfully registeres", Toast.LENGTH_LONG).show();
+                    Toast.makeText(MainActivity.this, "Successfully registered", Toast.LENGTH_LONG).show();
                     Intent intent=new Intent(MainActivity.this, DashboardActivity.class);
                     startActivity(intent);
                     finish();
                 }
                 else{
+
                     Toast.makeText(MainActivity.this, "Sign In fail!", Toast.LENGTH_LONG).show();
                 }
                 progressDialog.dismiss();

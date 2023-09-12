@@ -38,13 +38,14 @@
             android:id="@+id/email"
             android:layout_width="match_parent"
             android:layout_height="65dp"
+            android:background="@drawable/rectangle_field"
             android:hint="Enter your email..."
+            android:inputType="textEmailAddress"
             android:paddingVertical="15dp"
-            android:textColor="#000000"
-            android:textStyle="bold"
-            android:inputType="textPassword"
             android:paddingLeft="60dp"
-            android:background="@drawable/rectangle_field" />
+            android:textColor="#000000"
+            android:textStyle="bold" />
+
         <ImageView
             android:layout_width="37dp"
             android:layout_height="50dp"
@@ -66,7 +67,7 @@
             android:paddingVertical="15dp"
             android:textColor="#000000"
             android:textStyle="bold"
-            android:inputType="textEmailAddress"
+            android:inputType="textPassword"
             android:paddingLeft="60dp"
             android:background="@drawable/rectangle_field" />
         <ImageView

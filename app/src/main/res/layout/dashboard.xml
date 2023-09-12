@@ -10,13 +10,32 @@
         android:textColor="#4E057E"
         android:text="Dashboard"
         android:textSize="20dp"/>
+
+    <Button
+        android:id="@+id/btON"
+        android:layout_width="200dp"
+        android:layout_height="60dp"
+        android:layout_marginTop="60dp"
+        android:text="Bluetooth ON"
+        android:textAllCaps="false"
+        android:textSize="20dp" />
+
+    <Button
+        android:id="@+id/btOFF"
+        android:layout_width="200dp"
+        android:layout_height="60dp"
+        android:layout_marginTop="60dp"
+        android:text="Bluetooth OFF"
+        android:textSize="20dp"
+        android:textAllCaps = "false"/>
+
     <Button
         android:id="@+id/logout"
         android:layout_width="200dp"
         android:layout_height="60dp"
         android:layout_marginTop="60dp"
         android:text="Log Out"
-        android:textSize="20dp"
-        android:textAllCaps = "false"/>
+        android:textAllCaps="false"
+        android:textSize="20dp" />
 
 </LinearLayout>
