@@ -8,6 +8,9 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import android.widget.TextView;
 
 
 import androidx.core.app.ActivityCompat;
@@ -16,6 +19,8 @@ import com.google.firebase.auth.FirebaseAuth;
 
 public class DashboardActivity extends Activity {
     private Button logout, btON, btOFF;
+
+    private TextView dashboardTextView;
     private BluetoothAdapter myBluetoothAdapter; //Deklaracja zmiennej myBluetoothAdapter do zarządzania funkcjami Bluetooth
 
     Intent btEnablingIntent; //Deklaracja zmiennej btEnablingIntent przechowującej intencję do włączenia Bluetooth.
@@ -27,6 +32,15 @@ public class DashboardActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.dashboard);
 
+        dashboardTextView = findViewById(R.id.dashboardTextView);
+        // Pobranie nazwy użytkownika (człon przed "@") po zalogowaniu
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        String userEmail = user.getEmail();
+        String[] emailParts = userEmail.split("@");
+        String username = emailParts[0];
+        String welcomeText = "Witaj " + username;
+        dashboardTextView.setText(welcomeText);
+
         btON = (Button) findViewById(R.id.btON);
         btOFF = (Button) findViewById(R.id.btOFF);
         myBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
@@ -35,6 +49,7 @@ public class DashboardActivity extends Activity {
 
         bluetoothONMethod();
         bluetoothOFFMethod();
+
 
 
         logout = findViewById(R.id.logout);
@@ -46,6 +61,7 @@ public class DashboardActivity extends Activity {
                 startActivity(intent);
                 finish();
             }
+
 
         });
     }
