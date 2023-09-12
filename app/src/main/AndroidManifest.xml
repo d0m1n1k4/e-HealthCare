@@ -27,6 +27,7 @@
 <!--        ADDED BY ME-->
         <activity android:name=".SignUpActivity"/>
         <activity android:name=".DashboardActivity"/>
+        <activity android:name=".HeartRateMeasurementActivity"/>
     </application>
 
 </manifest>

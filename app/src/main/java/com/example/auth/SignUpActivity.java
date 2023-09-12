@@ -37,20 +37,11 @@ public class SignUpActivity extends AppCompatActivity {
         SignUpButton = findViewById(R.id.register);
         progressDialog = new ProgressDialog(this);
         SignInTextV = findViewById(R.id.signInTextV);
-        SignUpButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Register();
-
-            }
-        });
-        SignInTextV.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent=new Intent(SignUpActivity.this, MainActivity.class);
-                startActivity(intent);
-                finish();
-            }
+        SignUpButton.setOnClickListener(v -> Register());
+        SignInTextV.setOnClickListener(v -> {
+            Intent intent=new Intent(SignUpActivity.this, MainActivity.class);
+            startActivity(intent);
+            finish();
         });
     }
 
@@ -80,21 +71,18 @@ public class SignUpActivity extends AppCompatActivity {
         progressDialog.setMessage("Please wait...");
         progressDialog.show();
         progressDialog.setCanceledOnTouchOutside(false);
-        firebaseAuth.createUserWithEmailAndPassword(email,password1).addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-            @Override
-            public void onComplete(@NonNull Task<AuthResult> task) {
-                if(task.isSuccessful()){
-                    Toast.makeText(SignUpActivity.this, "Successfully registered", Toast.LENGTH_LONG).show();
-                    Intent intent=new Intent(SignUpActivity.this, DashboardActivity.class);
-                    startActivity(intent);
-                    finish();
-                }
-                else{
-                    Toast.makeText(SignUpActivity.this, "Sign up fail!", Toast.LENGTH_LONG).show();
-                }
-                progressDialog.dismiss();
-
+        firebaseAuth.createUserWithEmailAndPassword(email,password1).addOnCompleteListener(this, task -> {
+            if(task.isSuccessful()){
+                Toast.makeText(SignUpActivity.this, "Successfully registered", Toast.LENGTH_LONG).show();
+                Intent intent=new Intent(SignUpActivity.this, DashboardActivity.class);
+                startActivity(intent);
+                finish();
             }
+            else{
+                Toast.makeText(SignUpActivity.this, "Sign up fail!", Toast.LENGTH_LONG).show();
+            }
+            progressDialog.dismiss();
+
         });
     }
     private Boolean isValidEmail(CharSequence target){

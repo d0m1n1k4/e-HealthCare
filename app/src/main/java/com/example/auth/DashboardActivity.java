@@ -18,7 +18,7 @@ import androidx.core.app.ActivityCompat;
 import com.google.firebase.auth.FirebaseAuth;
 
 public class DashboardActivity extends Activity {
-    private Button logout, btON, btOFF;
+    private Button logout, btON, btOFF, hrButton;
 
     private TextView dashboardTextView;
     private BluetoothAdapter myBluetoothAdapter; //Deklaracja zmiennej myBluetoothAdapter do zarządzania funkcjami Bluetooth
@@ -50,7 +50,15 @@ public class DashboardActivity extends Activity {
         bluetoothONMethod();
         bluetoothOFFMethod();
 
-
+        hrButton = findViewById(R.id.hrButton); // Dodaj tę linię
+        hrButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Otwieranie nowego Dashboard zatytułowanego "Wykonaj pomiar tętna"
+                Intent intent = new Intent(DashboardActivity.this, HeartRateMeasurementActivity.class);
+                startActivity(intent);
+            }
+        });
 
         logout = findViewById(R.id.logout);
         logout.setOnClickListener(new View.OnClickListener() {
