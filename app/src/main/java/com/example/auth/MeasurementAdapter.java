@@ -3,15 +3,16 @@ package com.example.auth;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
+import android.widget.EditText;
 import androidx.recyclerview.widget.RecyclerView;
 import java.util.List;
+import android.widget.TextView;
 
 public class MeasurementAdapter extends RecyclerView.Adapter<MeasurementAdapter.MeasurementViewHolder> {
 
-    private List<String> measurements;
+    private List<Measurement> measurements;
 
-    public MeasurementAdapter(List<String> measurements) {
+    public MeasurementAdapter(List<Measurement> measurements) {
         this.measurements = measurements;
     }
 
@@ -24,8 +25,8 @@ public class MeasurementAdapter extends RecyclerView.Adapter<MeasurementAdapter.
 
     @Override
     public void onBindViewHolder(MeasurementViewHolder holder, int position) {
-        String measurement = measurements.get(position);
-        holder.measurementTextView.setText(measurement);
+        Measurement measurement = measurements.get(position);
+        holder.measurementTextView.setText(measurement.getMeasurementName());
     }
 
     @Override
@@ -35,10 +36,14 @@ public class MeasurementAdapter extends RecyclerView.Adapter<MeasurementAdapter.
 
     public class MeasurementViewHolder extends RecyclerView.ViewHolder {
         public TextView measurementTextView;
+        public EditText manualTetnoEditText;
+        public EditText manualGlukozaEditText;
 
         public MeasurementViewHolder(View view) {
             super(view);
             measurementTextView = view.findViewById(R.id.measurementTextView);
+            manualTetnoEditText = view.findViewById(R.id.manualTetnoEditText);
+            manualGlukozaEditText = view.findViewById(R.id.manualGlukozaEditText);
         }
     }
 }

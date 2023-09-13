@@ -10,43 +10,20 @@
         android:id="@+id/headerTextView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/measurement_title"
+        android:text="Pomiary ręczne"
         android:textSize="24sp"
         android:layout_marginTop="16dp"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
-    <RadioGroup
-        android:id="@+id/measurementRadioGroup"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        app:layout_constraintTop_toBottomOf="@+id/headerTextView"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="16dp">
-
-        <RadioButton
-            android:id="@+id/manualMeasurementRadioButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Pomiary ręczne" />
-
-        <RadioButton
-            android:id="@+id/bleMeasurementRadioButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Pomiary BLE" />
-    </RadioGroup>
-
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerView"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        app:layout_constraintTop_toBottomOf="@+id/measurementRadioGroup"
-        app:layout_constraintBottom_toBottomOf="parent"
-        tools:listitem="@layout/measurement_item" />
+        app:layout_constraintTop_toBottomOf="@+id/headerTextView"
+        app:layout_constraintBottom_toTopOf="@+id/backButton"
+    tools:listitem="@layout/measurement_item" />
 
     <Button
         android:id="@+id/backButton"

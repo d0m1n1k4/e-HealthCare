@@ -32,12 +32,12 @@ public class HeartRateMeasurementActivity extends Activity {
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
         // Przygotowujemy dane do wyświetlenia w liście pomiarów
-        List<String> measurements = new ArrayList<>();
-        measurements.add("Pomiar 1.");
-        measurements.add("Pomiar 2.");
-        measurements.add("Pomiar 3.");
-        measurements.add("Pomiar 4.");
-        measurements.add("Pomiar 5.");
+        List<Measurement> measurements = new ArrayList<>();
+        measurements.add(new Measurement("Pomiar 1", "", ""));
+        measurements.add(new Measurement("Pomiar 2", "", ""));
+        measurements.add(new Measurement("Pomiar 3", "", ""));
+        measurements.add(new Measurement("Pomiar 4", "", ""));
+        measurements.add(new Measurement("Pomiar 5", "", ""));
 
         // Inicjalizujemy adapter i przypisujemy go do RecyclerView
         adapter = new MeasurementAdapter(measurements);
@@ -55,8 +55,3 @@ public class HeartRateMeasurementActivity extends Activity {
         });
     }
 }
-
-
-
-
-
