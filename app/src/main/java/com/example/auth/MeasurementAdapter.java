@@ -27,6 +27,8 @@ public class MeasurementAdapter extends RecyclerView.Adapter<MeasurementAdapter.
     public void onBindViewHolder(MeasurementViewHolder holder, int position) {
         Measurement measurement = measurements.get(position);
         holder.measurementTextView.setText(measurement.getMeasurementName());
+        holder.manualTetnoEditText.setText(measurement.getTetnoValue());
+        holder.manualGlukozaEditText.setText(measurement.getGlukozaValue());
     }
 
     @Override
@@ -45,5 +47,13 @@ public class MeasurementAdapter extends RecyclerView.Adapter<MeasurementAdapter.
             manualTetnoEditText = view.findViewById(R.id.manualTetnoEditText);
             manualGlukozaEditText = view.findViewById(R.id.manualGlukozaEditText);
         }
+    }
+
+    public void clearUserInputData() {
+        for (Measurement measurement : measurements) {
+            measurement.setTetnoValue("");
+            measurement.setGlukozaValue("");
+        }
+        notifyDataSetChanged();
     }
 }

@@ -54,7 +54,7 @@ public class DashboardActivity extends Activity {
         hrButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Otwieranie nowego Dashboard zatytułowanego "Wykonaj pomiar tętna"
+                // Otwieranie nowego Dashboard zatytułowanego "Pomiary ręczne"
                 Intent intent = new Intent(DashboardActivity.this, HeartRateMeasurementActivity.class);
                 startActivity(intent);
             }

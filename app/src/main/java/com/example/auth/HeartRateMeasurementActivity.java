@@ -26,7 +26,7 @@ public class HeartRateMeasurementActivity extends Activity {
 
         // Ustawiamy nagłówek
         headerTextView = findViewById(R.id.headerTextView);
-        headerTextView.setText("Wykonaj pomiar tetna");
+        headerTextView.setText("Pomiary ręczne");
 
         recyclerView = findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -42,6 +42,16 @@ public class HeartRateMeasurementActivity extends Activity {
         // Inicjalizujemy adapter i przypisujemy go do RecyclerView
         adapter = new MeasurementAdapter(measurements);
         recyclerView.setAdapter(adapter);
+
+        // Przycisk czyszczący wprowadzone dane
+        Button clearButton = findViewById(R.id.clearButton);
+        clearButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Wywołaj metodę clearUserInputData() na adapterze, która wyczyści dane wprowadzone przez użytkownika
+                adapter.clearUserInputData();
+            }
+        });
 
         Button backButton = findViewById(R.id.backButton);
         backButton.setOnClickListener(new View.OnClickListener() {

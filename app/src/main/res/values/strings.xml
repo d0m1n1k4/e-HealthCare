@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">Auth</string>
     <string name="measurement_title">Pomiary ręczne</string>
+    <string name="pomiary_r_czne">Pomiary ręczne</string>
 </resources>
