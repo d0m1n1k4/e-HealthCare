@@ -10,18 +10,40 @@
         android:id="@+id/headerTextView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Pomiar tetna i glukozy"
+        android:text="@string/measurement_title"
         android:textSize="24sp"
         android:layout_marginTop="16dp"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
+    <CheckBox
+        android:id="@+id/manualMeasurementCheckbox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Pomiary ręczne"
+        android:layout_marginTop="16dp"
+        app:layout_constraintTop_toBottomOf="@+id/headerTextView"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/bleMeasurementCheckbox" />
+
+    <CheckBox
+        android:id="@+id/bleMeasurementCheckbox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Pomiary BLE"
+        android:layout_marginTop="16dp"
+        app:layout_constraintTop_toBottomOf="@+id/headerTextView"
+        app:layout_constraintStart_toEndOf="@+id/manualMeasurementCheckbox"
+        app:layout_constraintEnd_toEndOf="parent" />
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_below="@id/headerTextView" />
+        android:layout_height="0dp"
+        app:layout_constraintTop_toBottomOf="@+id/manualMeasurementCheckbox"
+        app:layout_constraintBottom_toBottomOf="parent"
+        tools:listitem="@layout/measurement_item" />
 
     <Button
         android:id="@+id/backButton"
@@ -34,8 +56,6 @@
         android:textSize="18sp"
         android:layout_gravity="bottom|start"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"/>
-
-
+        app:layout_constraintStart_toStartOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
