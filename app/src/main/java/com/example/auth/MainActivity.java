@@ -18,6 +18,8 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase; // Dodaj import Firebase Realtime Database
 
 public class MainActivity extends AppCompatActivity {
     private EditText emailEt, passwordEt;
@@ -25,65 +27,76 @@ public class MainActivity extends AppCompatActivity {
     private TextView SignUpTextV;
     private ProgressDialog progressDialog;
     private FirebaseAuth firebaseAuth;
+    private DatabaseReference databaseReference; // Dodaj referencję do bazy danych Firebase Realtime Database
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        firebaseAuth = FirebaseAuth.getInstance(); // Inicjalizacja Firebase Authentication
-        emailEt = findViewById(R.id.email);      // Inicjalizacja elementów interfejsu użytkownika
+
+        // Inicjalizacja Firebase Authentication
+        firebaseAuth = FirebaseAuth.getInstance();
+
+        // Inicjalizacja Firebase Realtime Database
+        databaseReference = FirebaseDatabase.getInstance().getReference();
+
+        emailEt = findViewById(R.id.email);
         passwordEt = findViewById(R.id.password);
-        SignInButton=findViewById(R.id.login);
+        SignInButton = findViewById(R.id.login);
         progressDialog = new ProgressDialog(this);
         SignUpTextV = findViewById(R.id.signUpTextV);
-        SignInButton.setOnClickListener(new View.OnClickListener() {  //Nasłuchiwanie kliknięcia na przycisk Logowania
+        SignInButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Login();
-
             }
         });
-        SignUpTextV.setOnClickListener(new View.OnClickListener() { // Nasłuchiwanie kliknięcia na TextView "Sign Up"
-
+        SignUpTextV.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent=new Intent(MainActivity.this, SignUpActivity.class);
+                Intent intent = new Intent(MainActivity.this, SignUpActivity.class);
                 startActivity(intent);
                 finish();
             }
         });
     }
-    private void Login(){
-        String email=emailEt.getText().toString();
-        String password=passwordEt.getText().toString();
-        if(TextUtils.isEmpty(email)){
+
+    private void Login() {
+        String email = emailEt.getText().toString();
+        String password = passwordEt.getText().toString();
+        if (TextUtils.isEmpty(email)) {
             emailEt.setError("Enter your email");
             return;
-        }
-        else if(TextUtils.isEmpty(password)){
+        } else if (TextUtils.isEmpty(password)) {
             passwordEt.setError("Enter your password");
             return;
         }
         progressDialog.setMessage("Please wait...");
         progressDialog.show();
         progressDialog.setCanceledOnTouchOutside(false);
-        firebaseAuth.signInWithEmailAndPassword(email,password).addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+        firebaseAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
-                if(task.isSuccessful()){
+                if (task.isSuccessful()) {
                     Toast.makeText(MainActivity.this, "Successfully registered", Toast.LENGTH_LONG).show();
-                    Intent intent=new Intent(MainActivity.this, DashboardActivity.class);
+                    // Dodaj informacje o zalogowanym użytkowniku do Firebase Realtime Database
+                    addUserToDatabase(firebaseAuth.getCurrentUser().getUid());
+
+                    Intent intent = new Intent(MainActivity.this, DashboardActivity.class);
                     startActivity(intent);
                     finish();
-                }
-                else{
-
+                } else {
                     Toast.makeText(MainActivity.this, "Sign In fail!", Toast.LENGTH_LONG).show();
                 }
                 progressDialog.dismiss();
-
             }
         });
     }
 
+    // Metoda dodająca informacje o zalogowanym użytkowniku do Firebase Realtime Database
+    private void addUserToDatabase(String userId) {
+        // Tworzymy referencję do konkretnego użytkownika w bazie danych
+        DatabaseReference userReference = databaseReference.child("users").child(userId);
+
+    }
 }

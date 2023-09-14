@@ -1,4 +1,6 @@
 package com.example.auth;
+
+import android.util.Log;
 public class Measurement {
     private String measurementName;
     private String tetnoValue;
@@ -19,6 +21,7 @@ public class Measurement {
     }
 
     public String getTetnoValue() {
+        Log.d("TAG", "TetnoValue: " + tetnoValue);
         return tetnoValue;
     }
 
@@ -27,6 +30,7 @@ public class Measurement {
     }
 
     public String getGlukozaValue() {
+        Log.d("TAG", "GlukozaValue: " + glukozaValue);
         return glukozaValue;
     }
 
