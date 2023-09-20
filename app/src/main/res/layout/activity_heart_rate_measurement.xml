@@ -43,7 +43,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="POWRÓT"
-            android:textSize="18sp"
+            android:textSize="12sp"
             android:layout_marginEnd="8dp"
             app:layout_constraintEnd_toStartOf="@+id/saveButton" />
 
@@ -53,7 +53,17 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="ZAPISZ"
-            android:textSize="18sp"
+            android:textSize="12sp"
+            android:layout_marginEnd="8dp"
+            app:layout_constraintEnd_toStartOf="@+id/clearButton" />
+
+        <Button
+            android:id="@+id/backupButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="POBIERZ"
+            android:textSize="12sp"
             android:layout_marginEnd="8dp"
             app:layout_constraintEnd_toStartOf="@+id/clearButton" />
 
@@ -63,7 +73,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="WYCZYŚĆ"
-            android:textSize="18sp"
+            android:textSize="12sp"
             app:layout_constraintEnd_toEndOf="parent" />
 
     </LinearLayout>
