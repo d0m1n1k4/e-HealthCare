@@ -10,7 +10,6 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -19,15 +18,14 @@ import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.common.api.Scope;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
+import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
+import com.google.api.client.http.ByteArrayContent;
 import com.google.api.client.http.HttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.gson.GsonFactory;
 import com.google.api.services.drive.Drive;
-import com.google.api.services.drive.DriveScopes;
-import com.google.api.services.drive.model.File;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
@@ -52,9 +50,10 @@ public class HeartRateMeasurementActivity extends Activity {
     private RecyclerView recyclerView;
     private MeasurementAdapter adapter;
     private GoogleSignInClient googleSignInClient;
-    private Drive driveService;
-
     private static final int REQUEST_CODE_SIGN_IN = 1;
+
+    // Dodajemy identyfikator klienta OAuth2
+    private static final String CLIENT_ID = "281646499375-lkjp0h2ubb2egfr1q2mnmqd0qv9n8bel.apps.googleusercontent.com";
 
     @SuppressLint("SetTextI18n")
     @Override
@@ -64,9 +63,14 @@ public class HeartRateMeasurementActivity extends Activity {
 
         firebaseAuth = FirebaseAuth.getInstance();
 
-        googleSignInClient = GoogleSignIn.getClient(this, new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+        // Konfiguracja opcji logowania Google SignIn
+        GoogleSignInOptions signInOptions = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestEmail()
-                .build());
+                .requestScopes(new Scope("https://www.googleapis.com/auth/drive.file"))
+                .requestIdToken(CLIENT_ID) // Ustawiamy identyfikator klienta OAuth2
+                .build();
+
+        googleSignInClient = GoogleSignIn.getClient(this, signInOptions);
 
         headerTextView = findViewById(R.id.headerTextView);
         headerTextView.setText("Pomiary ręczne");
@@ -84,6 +88,8 @@ public class HeartRateMeasurementActivity extends Activity {
         adapter = new MeasurementAdapter(measurements);
         recyclerView.setAdapter(adapter);
 
+        //Przycisk "WYCZYŚĆ"
+
         Button clearButton = findViewById(R.id.clearButton);
         clearButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -91,6 +97,8 @@ public class HeartRateMeasurementActivity extends Activity {
                 adapter.clearUserInputData();
             }
         });
+
+        // Przycisk "POBIERZ"
 
         Button backupButton = findViewById(R.id.backupButton);
         backupButton.setOnClickListener(new View.OnClickListener() {
@@ -100,6 +108,8 @@ public class HeartRateMeasurementActivity extends Activity {
             }
         });
 
+        // Przycisk "ZAPISZ"
+
         Button saveButton = findViewById(R.id.saveButton);
         saveButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -108,6 +118,7 @@ public class HeartRateMeasurementActivity extends Activity {
             }
         });
 
+        // Przycisk "POWRÓT"
         Button backButton = findViewById(R.id.backButton);
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -138,67 +149,52 @@ public class HeartRateMeasurementActivity extends Activity {
     }
 
     private void handleDriveSignInSuccess(Intent data) {
-        GoogleSignIn.getSignedInAccountFromIntent(data)
-                .addOnSuccessListener(new OnSuccessListener<GoogleSignInAccount>() {
-                    @Override
-                    public void onSuccess(GoogleSignInAccount googleSignInAccount) {
-                        HttpTransport httpTransport;
-                        try {
-                            httpTransport = com.google.api.client.googleapis.javanet.GoogleNetHttpTransport.newTrustedTransport();
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                            return;
-                        }
+        GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(this);
+        if (account != null) {
+            HttpTransport httpTransport;
+            try {
+                httpTransport = GoogleNetHttpTransport.newTrustedTransport();
+            } catch (Exception e) {
+                e.printStackTrace();
+                return;
+            }
 
-                        GoogleAccountCredential credential = GoogleAccountCredential.usingOAuth2(
-                                HeartRateMeasurementActivity.this, Collections.singleton(DriveScopes.DRIVE_FILE));
-                        credential.setSelectedAccount(googleSignInAccount.getAccount());
+            GoogleAccountCredential credential = GoogleAccountCredential.usingOAuth2(
+                    HeartRateMeasurementActivity.this, Collections.singleton("https://www.googleapis.com/auth/drive.file"));
+            credential.setSelectedAccount(account.getAccount());
 
-                        // Używamy GsonFactory zamiast JacksonFactory
-                        JsonFactory JSON_FACTORY = GsonFactory.getDefaultInstance();
+            JsonFactory JSON_FACTORY = GsonFactory.getDefaultInstance();
 
-                        driveService = new Drive.Builder(httpTransport, JSON_FACTORY, credential)
-                                .setApplicationName("Your App Name")
-                                .build();
+            Drive driveService = new Drive.Builder(httpTransport, JSON_FACTORY, credential)
+                    .setApplicationName("e-HealthCare")
+                    .build();
 
-                        saveDataToDrive();
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.e("GoogleDriveAuth", "User not signed in to Google Drive.");
-                        Toast.makeText(getApplicationContext(), "Użytkownik nie jest zalogowany do Google Drive.", Toast.LENGTH_SHORT).show();
-                    }
-                });
+            saveDataToDrive(driveService);
+        } else {
+            Log.e("GoogleDriveAuth", "User not signed in to Google Drive.");
+            Toast.makeText(getApplicationContext(), "Użytkownik nie jest zalogowany do Google Drive.", Toast.LENGTH_SHORT).show();
+        }
     }
 
-    private void saveDataToDrive() {
+    private void saveDataToDrive(Drive driveService) {
         List<Measurement> measurements = adapter.getMeasurements();
         String jsonData = createJsonData(measurements);
 
-        File file = null;
-
-        File fileMetadata = new File();
+        com.google.api.services.drive.model.File fileMetadata = new com.google.api.services.drive.model.File();
         fileMetadata.setName("measurements_" + generateMeasurementId() + ".json");
         fileMetadata.setMimeType("application/json");
 
-        com.google.api.client.http.ByteArrayContent content = new com.google.api.client.http.ByteArrayContent("application/json", jsonData.getBytes());
+        ByteArrayContent content = new ByteArrayContent("application/json", jsonData.getBytes());
 
         try {
-            file = driveService.files().create(fileMetadata, content)
+            com.google.api.services.drive.model.File file = driveService.files().create(fileMetadata, content)
                     .setFields("id")
                     .execute();
-        } catch (IOException e) {
-            Log.e("GoogleDriveSave", "Error saving file to Google Drive: " + e.getMessage());
-            Toast.makeText(getApplicationContext(), "Błąd podczas zapisywania pliku na Dysku Google Drive.", Toast.LENGTH_SHORT).show();
-        }
 
-        if (file != null) {
             Log.d("GoogleDriveSave", "File ID: " + file.getId());
             Toast.makeText(getApplicationContext(), "Plik został zapisany w Dysku Google Drive.", Toast.LENGTH_SHORT).show();
-        } else {
-            Log.e("GoogleDriveSave", "Error saving file to Google Drive.");
+        } catch (IOException e) {
+            Log.e("GoogleDriveSave", "Error saving file to Google Drive: " + e.getMessage());
             Toast.makeText(getApplicationContext(), "Błąd podczas zapisywania pliku na Dysku Google Drive.", Toast.LENGTH_SHORT).show();
         }
     }
@@ -250,3 +246,4 @@ public class HeartRateMeasurementActivity extends Activity {
         }
     }
 }
+

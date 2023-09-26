@@ -1,25 +1,24 @@
 package com.example.auth;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.util.Patterns;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase; // Dodaj import Firebase Realtime Database
+import com.google.firebase.database.FirebaseDatabase;
 
 public class MainActivity extends AppCompatActivity {
     private EditText emailEt, passwordEt;
@@ -27,17 +26,15 @@ public class MainActivity extends AppCompatActivity {
     private TextView SignUpTextV;
     private ProgressDialog progressDialog;
     private FirebaseAuth firebaseAuth;
-    private DatabaseReference databaseReference; // Dodaj referencję do bazy danych Firebase Realtime Database
+    private DatabaseReference databaseReference;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // Inicjalizacja Firebase Authentication
         firebaseAuth = FirebaseAuth.getInstance();
 
-        // Inicjalizacja Firebase Realtime Database
         databaseReference = FirebaseDatabase.getInstance().getReference();
 
         emailEt = findViewById(R.id.email);
