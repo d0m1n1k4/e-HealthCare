@@ -13,7 +13,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
 public class DashboardActivity extends Activity {
-    private Button logout, btON, hrButton;
+    private Button logout, btON, manualButton, bleButton, resultButton;
 
     private TextView dashboardTextView;
     private BluetoothAdapter myBluetoothAdapter; //Deklaracja zmiennej myBluetoothAdapter do zarządzania funkcjami Bluetooth
@@ -43,12 +43,32 @@ public class DashboardActivity extends Activity {
 
         bluetoothONMethod();
 
-        hrButton = findViewById(R.id.hrButton); // Dodaj tę linię
-        hrButton.setOnClickListener(new View.OnClickListener() {
+        bleButton = findViewById(R.id.bleButton);
+       bleButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Otwieranie nowego Dashboard zatytułowanego "Pomiary ręczne"
+                Intent intent = new Intent(DashboardActivity.this, BLEMeasurementActivity.class);
+                startActivity(intent);
+            }
+        });
+
+        manualButton = findViewById(R.id.manualButton);
+        manualButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 // Otwieranie nowego Dashboard zatytułowanego "Pomiary ręczne"
                 Intent intent = new Intent(DashboardActivity.this, HeartRateMeasurementActivity.class);
+                startActivity(intent);
+            }
+        });
+
+        resultButton = findViewById(R.id.resultButton);
+        resultButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Otwieranie nowego Dashboard zatytułowanego "Pomiary ręczne"
+                Intent intent = new Intent(DashboardActivity.this, ResultAnalysisActivity.class);
                 startActivity(intent);
             }
         });

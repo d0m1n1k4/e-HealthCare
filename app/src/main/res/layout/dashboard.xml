@@ -15,7 +15,7 @@
 
     <Button
         android:id="@+id/btON"
-        android:layout_width="200dp"
+        android:layout_width="250dp"
         android:layout_height="65dp"
         android:layout_marginTop="60dp"
         android:text="Bluetooth ON"
@@ -23,8 +23,8 @@
         android:textSize="20dp" />
 
     <Button
-        android:id="@+id/hrButton"
-        android:layout_width="200dp"
+        android:id="@+id/manualButton"
+        android:layout_width="250dp"
         android:layout_height="60dp"
         android:layout_marginTop="60dp"
         android:text="Pomiary ręczne"
@@ -32,8 +32,26 @@
         android:textAllCaps="false" />
 
     <Button
+        android:id="@+id/bleButton"
+        android:layout_width="250dp"
+        android:layout_height="60dp"
+        android:layout_marginTop="60dp"
+        android:text="Pomiary BLE"
+        android:textSize="20dp"
+        android:textAllCaps="false" />
+
+    <Button
+        android:id="@+id/resultButton"
+        android:layout_width="250dp"
+        android:layout_height="60dp"
+        android:layout_marginTop="60dp"
+        android:text="Analiza wyników"
+        android:textSize="20dp"
+        android:textAllCaps="false" />
+
+    <Button
         android:id="@+id/logout"
-        android:layout_width="200dp"
+        android:layout_width="250dp"
         android:layout_height="60dp"
         android:layout_marginTop="60dp"
         android:text="Log Out"
