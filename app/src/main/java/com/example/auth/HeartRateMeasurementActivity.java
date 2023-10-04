@@ -9,6 +9,8 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.LinearLayout;
+
 
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -60,6 +62,9 @@ public class HeartRateMeasurementActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_heart_rate_measurement);
+
+        LinearLayout buttonsLayout = findViewById(R.id.buttonsLayout);
+
 
         firebaseAuth = FirebaseAuth.getInstance();
 

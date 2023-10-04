@@ -2,6 +2,7 @@ package com.example.auth;
 
 public class MeasurementSession {
     private String sessionId;
+
     private String sessionName;
 
     public MeasurementSession() {

@@ -8,7 +8,7 @@ android {
     defaultConfig {
         compileSdk 33
         applicationId "com.example.auth"
-        minSdkVersion 24
+        minSdkVersion 22
         targetSdkVersion 33
         versionCode 1
         versionName "1.0"
@@ -18,6 +18,8 @@ android {
     packagingOptions {
         exclude("META-INF/DEPENDENCIES")
     }
+
+
 
     buildTypes {
         release {
@@ -67,6 +69,7 @@ dependencies {
             exclude group: 'com.google.guava'}
             implementation('com.google.apis:google-api-services-drive:v3-rev136-1.25.0') {
                 exclude group: 'com.google.guava'}
+    implementation 'com.github.PhilJay:MPAndroidChart:v3.1.0'
 
     }
 
