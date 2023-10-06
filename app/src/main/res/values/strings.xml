@@ -2,5 +2,6 @@
     <string name="app_name">Auth</string>
     <string name="measurement_title">Pomiary ręczne</string>
     <string name="pomiary_r_czne">Pomiary ręczne</string>
+    <string name="pomiary_ble">Pomiary BLE</string>
 	<string name="label_choose_session">Wybierz numer zapisanej sesji pomiarowej:</string>
 </resources>

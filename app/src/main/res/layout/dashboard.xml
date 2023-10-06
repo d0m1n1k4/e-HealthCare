@@ -1,61 +1,82 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:gravity="center">
+    android:padding="16dp"
+    tools:context=".DashboardActivity">
 
     <TextView
         android:id="@+id/dashboardTextView"
-        android:layout_width="200dp"
-        android:layout_height="35dp"
-        android:layout_gravity="center_horizontal"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
         android:textColor="#4E057E"
-        android:textSize="20dp" />
+        android:textSize="20sp"
+        android:gravity="center"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/btON" />
 
     <Button
         android:id="@+id/btON"
-        android:layout_width="250dp"
-        android:layout_height="65dp"
-        android:layout_marginTop="60dp"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
         android:text="Bluetooth ON"
         android:textAllCaps="false"
-        android:textSize="20dp" />
+        android:textSize="20sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/dashboardTextView"
+        app:layout_constraintBottom_toTopOf="@+id/manualButton" />
 
     <Button
         android:id="@+id/manualButton"
-        android:layout_width="250dp"
-        android:layout_height="60dp"
-        android:layout_marginTop="60dp"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
         android:text="Pomiary ręczne"
-        android:textSize="20dp"
-        android:textAllCaps="false" />
+        android:textSize="20sp"
+        android:textAllCaps="false"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/btON"
+        app:layout_constraintBottom_toTopOf="@+id/bleButton" />
 
     <Button
         android:id="@+id/bleButton"
-        android:layout_width="250dp"
-        android:layout_height="60dp"
-        android:layout_marginTop="60dp"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
         android:text="Pomiary BLE"
-        android:textSize="20dp"
-        android:textAllCaps="false" />
+        android:textSize="20sp"
+        android:textAllCaps="false"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/manualButton"
+        app:layout_constraintBottom_toTopOf="@+id/resultButton" />
 
     <Button
         android:id="@+id/resultButton"
-        android:layout_width="250dp"
-        android:layout_height="60dp"
-        android:layout_marginTop="60dp"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
         android:text="Analiza wyników"
-        android:textSize="20dp"
-        android:textAllCaps="false" />
+        android:textSize="20sp"
+        android:textAllCaps="false"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/bleButton"
+        app:layout_constraintBottom_toTopOf="@+id/logout" />
 
     <Button
         android:id="@+id/logout"
-        android:layout_width="250dp"
-        android:layout_height="60dp"
-        android:layout_marginTop="60dp"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
         android:text="Log Out"
         android:textAllCaps="false"
-        android:textSize="20dp" />
+        android:textSize="20sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/resultButton" />
 
-</LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

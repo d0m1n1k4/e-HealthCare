@@ -16,7 +16,7 @@
         android:text="eHealthCare"
         android:textColor="#4E057E"
         android:textSize="45dp"
-        android:layout_marginBottom="70dp"
+        android:layout_marginBottom="30dp"
         android:textStyle="bold"
         android:typeface="monospace" />
 
@@ -26,81 +26,85 @@
         android:text="Sign In"
         android:textColor="#ffffff"
         android:textSize="30dp"
-        android:textStyle="bold"
- />
+        android:textStyle="bold" />
 
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="40dp">
+        android:layout_marginTop="20dp">
 
         <EditText
             android:id="@+id/email"
             android:layout_width="match_parent"
-            android:layout_height="65dp"
+            android:layout_height="50dp"
             android:hint="Enter your email..."
-            android:paddingVertical="15dp"
+            android:paddingVertical="10dp"
             android:textColor="#000000"
             android:textStyle="bold"
-
             android:inputType="textEmailAddress"
-            android:paddingLeft="60dp"
+            android:paddingLeft="45dp"
             android:background="@drawable/rectangle_field" />
+
         <ImageView
-            android:layout_width="37dp"
-            android:layout_height="50dp"
+            android:layout_width="30dp"
+            android:layout_height="40dp"
             android:layout_marginLeft="10dp"
             android:background="@drawable/mail"
             android:layout_alignParentLeft="true"
-            android:layout_centerInParent="true"/>
+            android:layout_centerVertical="true" />
     </RelativeLayout>
+
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="40dp">
+        android:layout_marginTop="20dp">
 
         <EditText
             android:id="@+id/password"
             android:layout_width="match_parent"
-            android:layout_height="65dp"
+            android:layout_height="50dp"
             android:hint="Enter your password..."
-            android:paddingVertical="15dp"
+            android:paddingVertical="10dp"
             android:textColor="#000000"
             android:textStyle="bold"
             android:inputType="textPassword"
-            android:paddingLeft="60dp"
+            android:paddingLeft="45dp"
             android:background="@drawable/rectangle_field" />
+
         <ImageView
-            android:layout_width="37dp"
-            android:layout_height="50dp"
+            android:layout_width="30dp"
+            android:layout_height="40dp"
             android:layout_marginLeft="10dp"
             android:background="@drawable/password"
             android:layout_alignParentLeft="true"
-            android:layout_centerInParent="true"/>
+            android:layout_centerVertical="true" />
     </RelativeLayout>
+
     <Button
         android:id="@+id/login"
         android:layout_width="match_parent"
-        android:layout_height="60dp"
+        android:layout_height="50dp"
         android:text="Sign in"
         android:textColor="#ffffff"
-        android:layout_marginTop="30dp"
+        android:layout_marginTop="20dp"
         android:background="@drawable/rectangle_field"
-        android:textSize="25dp"
-        android:textAllCaps="false"
-        />
+        android:textSize="20dp"
+        android:textAllCaps="false" />
+
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="center"
         android:layout_marginTop="20dp"
-        android:layout_marginBottom="40dp">
+        android:layout_marginBottom="20dp">
+
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Don't have an account?"
-            android:textSize="18dp"/>
+            android:textSize="16dp" />
+
         <TextView
             android:id="@+id/signUpTextV"
             android:layout_width="wrap_content"
@@ -108,8 +112,7 @@
             android:text="Register"
             android:layout_marginLeft="10dp"
             android:textStyle="bold"
-            android:textSize="20dp"
-            android:textColor="#ffffff"/>
+            android:textSize="18dp"
+            android:textColor="#ffffff" />
     </LinearLayout>
-
 </LinearLayout>

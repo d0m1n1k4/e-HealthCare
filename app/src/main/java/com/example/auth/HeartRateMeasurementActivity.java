@@ -135,6 +135,7 @@ public class HeartRateMeasurementActivity extends Activity {
     }
 
     private void signInToGoogleDrive() {
+        // Inicjowanie procesu logowania do Google Drive.
         Intent signInIntent = googleSignInClient.getSignInIntent();
         startActivityForResult(signInIntent, REQUEST_CODE_SIGN_IN);
     }
@@ -144,32 +145,39 @@ public class HeartRateMeasurementActivity extends Activity {
         super.onActivityResult(requestCode, resultCode, data);
 
         if (requestCode == REQUEST_CODE_SIGN_IN) {
+            // Obsługa wyniku aktywności logowania do Google Drive
             if (resultCode == RESULT_OK) {
                 handleDriveSignInSuccess(data);
             } else {
-                Log.e("GoogleDriveAuth", "Google Drive sign-in failed.");
-                Toast.makeText(getApplicationContext(), "Błąd autoryzacji Google Drive.", Toast.LENGTH_SHORT).show();
+                //Wyświetli się log z błędem, jeśli logowanie do Google Drive nie powiodło się.
+                String errorMessage = "Błąd autoryzacji Google Drive. Kod błędu: " + resultCode;
+                Log.e("GoogleDriveAuth", errorMessage);
+                Toast.makeText(getApplicationContext(), errorMessage, Toast.LENGTH_SHORT).show();
             }
         }
     }
 
     private void handleDriveSignInSuccess(Intent data) {
+        // Obsługa sukcesu logowania do Google Drive i inicjacja procesu zapisu danych
         GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(this);
         if (account != null) {
+            // Przygotowanie danych uwierzytelniających
             HttpTransport httpTransport;
             try {
+                // Obsługa komunikacji z Google Drive API zapewniającej bezpieczne połączenie
                 httpTransport = GoogleNetHttpTransport.newTrustedTransport();
             } catch (Exception e) {
                 e.printStackTrace();
                 return;
             }
-
+            //tworzenie obiektu służącego do reprezentowania poświadczeń i uprawnień konta Google, które będą używane do autoryzacji dostępu do Google Drive API
             GoogleAccountCredential credential = GoogleAccountCredential.usingOAuth2(
                     HeartRateMeasurementActivity.this, Collections.singleton("https://www.googleapis.com/auth/drive.file"));
             credential.setSelectedAccount(account.getAccount());
 
             JsonFactory JSON_FACTORY = GsonFactory.getDefaultInstance();
 
+            // Tworzenie usługi Google Drive i przekazanie jej do metody zapisu danych
             Drive driveService = new Drive.Builder(httpTransport, JSON_FACTORY, credential)
                     .setApplicationName("e-HealthCare")
                     .build();
@@ -192,6 +200,7 @@ public class HeartRateMeasurementActivity extends Activity {
         ByteArrayContent content = new ByteArrayContent("application/json", jsonData.getBytes());
 
         try {
+            // Tworzenie pliku w Google Drive i wyświetlenie w logach jego ID po zapisie
             com.google.api.services.drive.model.File file = driveService.files().create(fileMetadata, content)
                     .setFields("id")
                     .execute();
@@ -210,6 +219,7 @@ public class HeartRateMeasurementActivity extends Activity {
     }
 
     private String createJsonData(List<Measurement> measurements) {
+        // Tworzenie danych pomiarowych w formacie JSON na podstawie listy pomiarów
         JSONArray jsonArray = new JSONArray();
         for (Measurement measurement : measurements) {
             JSONObject jsonObject = new JSONObject();
