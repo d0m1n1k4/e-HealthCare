@@ -12,7 +12,7 @@ import android.widget.Toast;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
-public class DashboardActivity extends Activity {
+public class Menu extends Activity {
     private Button logout, btON, manualButton, bleButton, resultButton;
 
     private TextView dashboardTextView;
@@ -44,11 +44,11 @@ public class DashboardActivity extends Activity {
         bluetoothONMethod();
 
         bleButton = findViewById(R.id.bleButton);
-       bleButton.setOnClickListener(new View.OnClickListener() {
+        bleButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 // Otwieranie nowego Dashboard zatytułowanego "Pomiary ręczne"
-                Intent intent = new Intent(DashboardActivity.this, BLEMeasurementActivity.class);
+                Intent intent = new Intent(Menu.this, BLEMeasure.class);
                 startActivity(intent);
             }
         });
@@ -58,7 +58,7 @@ public class DashboardActivity extends Activity {
             @Override
             public void onClick(View v) {
                 // Otwieranie nowego Dashboard zatytułowanego "Pomiary ręczne"
-                Intent intent = new Intent(DashboardActivity.this, HeartRateMeasurementActivity.class);
+                Intent intent = new Intent(Menu.this, MeasureManager.class);
                 startActivity(intent);
             }
         });
@@ -68,7 +68,7 @@ public class DashboardActivity extends Activity {
             @Override
             public void onClick(View v) {
                 // Otwieranie nowego Dashboard zatytułowanego "Pomiary ręczne"
-                Intent intent = new Intent(DashboardActivity.this, GlucoseAnalysis.class);
+                Intent intent = new Intent(Menu.this, GlucoseAnalysis.class);
                 startActivity(intent);
             }
         });
@@ -78,7 +78,7 @@ public class DashboardActivity extends Activity {
             @Override
             public void onClick(View v) {
                 FirebaseAuth.getInstance().signOut();
-                Intent intent = new Intent(DashboardActivity.this, MainActivity.class);
+                Intent intent = new Intent(Menu.this, SignIn.class);
                 startActivity(intent);
                 finish();
             }

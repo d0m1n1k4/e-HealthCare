@@ -86,7 +86,7 @@ public class GlucoseAnalysis extends Activity {
         resultAnalysisBackButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(GlucoseAnalysis.this, DashboardActivity.class);
+                Intent intent = new Intent(GlucoseAnalysis.this, Menu.class);
                 startActivity(intent);
             }
         });

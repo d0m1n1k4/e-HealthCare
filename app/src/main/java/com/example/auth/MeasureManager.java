@@ -45,7 +45,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-public class HeartRateMeasurementActivity extends Activity {
+public class MeasureManager extends Activity {
 
     private TextView headerTextView;
     private FirebaseAuth firebaseAuth;
@@ -128,7 +128,7 @@ public class HeartRateMeasurementActivity extends Activity {
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(HeartRateMeasurementActivity.this, DashboardActivity.class);
+                Intent intent = new Intent(MeasureManager.this, Menu.class);
                 startActivity(intent);
             }
         });
@@ -172,7 +172,7 @@ public class HeartRateMeasurementActivity extends Activity {
             }
             //tworzenie obiektu służącego do reprezentowania poświadczeń i uprawnień konta Google, które będą używane do autoryzacji dostępu do Google Drive API
             GoogleAccountCredential credential = GoogleAccountCredential.usingOAuth2(
-                    HeartRateMeasurementActivity.this, Collections.singleton("https://www.googleapis.com/auth/drive.file"));
+                    MeasureManager.this, Collections.singleton("https://www.googleapis.com/auth/drive.file"));
             credential.setSelectedAccount(account.getAccount());
 
             JsonFactory JSON_FACTORY = GsonFactory.getDefaultInstance();
@@ -261,4 +261,3 @@ public class HeartRateMeasurementActivity extends Activity {
         }
     }
 }
-

@@ -19,7 +19,7 @@
         android:theme="@style/Theme.Auth"
         tools:targetApi="31">
         <activity
-            android:name=".MainActivity"
+            android:name=".SignIn"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -27,11 +27,11 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".SignUpActivity"/>
-        <activity android:name=".DashboardActivity"/>
-        <activity android:name=".HeartRateMeasurementActivity"/>
+        <activity android:name=".SignUp"/>
+        <activity android:name=".Menu"/>
+        <activity android:name=".MeasureManager"/>
         <activity android:name=".GlucoseAnalysis" />
-        <activity android:name=".BLEMeasurementActivity" />
+        <activity android:name=".BLEMeasure" />
 
 
     </application>

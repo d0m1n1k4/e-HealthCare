@@ -1,25 +1,20 @@
 package com.example.auth;
 
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Patterns;
-import android.view.View;
-import android.widget.EditText;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.content.Intent;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 
-public class SignUpActivity extends AppCompatActivity {
+public class SignUp extends AppCompatActivity {
     private EditText emailEt, passwordEt1, passwordEt2;
     private Button SignUpButton;
     private TextView SignInTextV;
@@ -39,7 +34,7 @@ public class SignUpActivity extends AppCompatActivity {
         SignInTextV = findViewById(R.id.signInTextV);
         SignUpButton.setOnClickListener(v -> Register());
         SignInTextV.setOnClickListener(v -> {
-            Intent intent=new Intent(SignUpActivity.this, MainActivity.class);
+            Intent intent=new Intent(SignUp.this, SignIn.class);
             startActivity(intent);
             finish();
         });
@@ -73,13 +68,13 @@ public class SignUpActivity extends AppCompatActivity {
         progressDialog.setCanceledOnTouchOutside(false);
         firebaseAuth.createUserWithEmailAndPassword(email,password1).addOnCompleteListener(this, task -> {
             if(task.isSuccessful()){
-                Toast.makeText(SignUpActivity.this, "Successfully registered", Toast.LENGTH_LONG).show();
-                Intent intent=new Intent(SignUpActivity.this, DashboardActivity.class);
+                Toast.makeText(SignUp.this, "Successfully registered", Toast.LENGTH_LONG).show();
+                Intent intent=new Intent(SignUp.this, Menu.class);
                 startActivity(intent);
                 finish();
             }
             else{
-                Toast.makeText(SignUpActivity.this, "Sign up fail!", Toast.LENGTH_LONG).show();
+                Toast.makeText(SignUp.this, "Sign up fail!", Toast.LENGTH_LONG).show();
             }
             progressDialog.dismiss();
 

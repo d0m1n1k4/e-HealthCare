@@ -20,7 +20,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
-public class MainActivity extends AppCompatActivity {
+public class SignIn extends AppCompatActivity {
     private EditText emailEt, passwordEt;
     private Button SignInButton;
     private TextView SignUpTextV;
@@ -51,7 +51,7 @@ public class MainActivity extends AppCompatActivity {
         SignUpTextV.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(MainActivity.this, SignUpActivity.class);
+                Intent intent = new Intent(SignIn.this, SignUp.class);
                 startActivity(intent);
                 finish();
             }
@@ -75,15 +75,15 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
                 if (task.isSuccessful()) {
-                    Toast.makeText(MainActivity.this, "Successfully registered", Toast.LENGTH_LONG).show();
+                    Toast.makeText(SignIn.this, "Successfully registered", Toast.LENGTH_LONG).show();
                     // Dodaj informacje o zalogowanym użytkowniku do Firebase Realtime Database
                     addUserToDatabase(firebaseAuth.getCurrentUser().getUid());
 
-                    Intent intent = new Intent(MainActivity.this, DashboardActivity.class);
+                    Intent intent = new Intent(SignIn.this, Menu.class);
                     startActivity(intent);
                     finish();
                 } else {
-                    Toast.makeText(MainActivity.this, "Sign In fail!", Toast.LENGTH_LONG).show();
+                    Toast.makeText(SignIn.this, "Sign In fail!", Toast.LENGTH_LONG).show();
                 }
                 progressDialog.dismiss();
             }

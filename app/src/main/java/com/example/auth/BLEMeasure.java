@@ -6,7 +6,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 
-public class    BLEMeasurementActivity extends Activity {
+public class BLEMeasure extends Activity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -20,7 +20,7 @@ public class    BLEMeasurementActivity extends Activity {
             public void onClick(View v) {
 
                 // Wróć do DashboardActivity
-                Intent intent = new Intent(BLEMeasurementActivity.this, DashboardActivity.class);
+                Intent intent = new Intent(BLEMeasure.this, Menu.class);
                 startActivity(intent);
             }
         });
