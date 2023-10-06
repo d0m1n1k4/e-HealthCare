@@ -6,10 +6,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
-import androidx.recyclerview.widget.RecyclerView;
-import java.util.List;
 import android.widget.TextView;
-import android.util.Log;
+
+import androidx.recyclerview.widget.RecyclerView;
+
+import java.util.List;
 
 public class MeasurementAdapter extends RecyclerView.Adapter<MeasurementAdapter.MeasurementViewHolder> {
 
@@ -22,7 +23,7 @@ public class MeasurementAdapter extends RecyclerView.Adapter<MeasurementAdapter.
     @Override
     public MeasurementViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View itemView = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.measurement_item, parent, false);
+                .inflate(R.layout.measure_edit, parent, false);
         return new MeasurementViewHolder(itemView);
     }
 

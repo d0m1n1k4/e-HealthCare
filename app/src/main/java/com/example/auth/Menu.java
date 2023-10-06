@@ -25,7 +25,7 @@ public class Menu extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.dashboard);
+        setContentView(R.layout.menu);
 
         dashboardTextView = findViewById(R.id.dashboardTextView);
         // Pobranie nazwy użytkownika (człon przed "@") po zalogowaniu

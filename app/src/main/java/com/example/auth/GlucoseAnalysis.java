@@ -46,7 +46,7 @@ public class GlucoseAnalysis extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_result_analysis);
+        setContentView(R.layout.glucose_analysis);
 
         LinearLayout buttonsLayout = findViewById(R.id.buttonsLayout);
 

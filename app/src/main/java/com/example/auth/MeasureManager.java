@@ -61,7 +61,7 @@ public class MeasureManager extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_heart_rate_measurement);
+        setContentView(R.layout.measure_manager);
 
         LinearLayout buttonsLayout = findViewById(R.id.buttonsLayout);
 

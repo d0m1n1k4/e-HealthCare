@@ -11,7 +11,7 @@ public class BLEMeasure extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_ble_measurement);
+        setContentView(R.layout.ble_measure);
 
 
         Button bleMeasurementBackButton = findViewById(R.id.bleMeasurementBackButton);
