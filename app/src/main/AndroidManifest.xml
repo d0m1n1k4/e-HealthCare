@@ -30,7 +30,7 @@
         <activity android:name=".SignUpActivity"/>
         <activity android:name=".DashboardActivity"/>
         <activity android:name=".HeartRateMeasurementActivity"/>
-        <activity android:name=".ResultAnalysisActivity" />
+        <activity android:name=".GlucoseAnalysis" />
         <activity android:name=".BLEMeasurementActivity" />
 
 

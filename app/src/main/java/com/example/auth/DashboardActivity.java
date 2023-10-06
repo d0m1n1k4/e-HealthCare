@@ -68,7 +68,7 @@ public class DashboardActivity extends Activity {
             @Override
             public void onClick(View v) {
                 // Otwieranie nowego Dashboard zatytułowanego "Pomiary ręczne"
-                Intent intent = new Intent(DashboardActivity.this, ResultAnalysisActivity.class);
+                Intent intent = new Intent(DashboardActivity.this, GlucoseAnalysis.class);
                 startActivity(intent);
             }
         });
