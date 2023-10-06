@@ -3,19 +3,19 @@ package com.example.auth;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.Paint;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.Spinner;
 import android.widget.LinearLayout;
+import android.widget.Spinner;
 
 import androidx.annotation.NonNull;
 
 import com.github.mikephil.charting.charts.LineChart;
-import com.github.mikephil.charting.components.AxisBase;
 import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.Entry;
@@ -42,6 +42,7 @@ public class GlucoseAnalysis extends Activity {
     private ArrayAdapter<String> sessionAdapter;
     private LineChart glucoseChart;
     private LineDataSet glucoseDataSet;
+    private XAxis xAxis;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,7 +50,6 @@ public class GlucoseAnalysis extends Activity {
         setContentView(R.layout.glucose_analysis);
 
         LinearLayout buttonsLayout = findViewById(R.id.buttonsLayout);
-
 
         sessionSpinner = findViewById(R.id.sessionSpinner);
         glucoseChart = findViewById(R.id.glucoseChart);
@@ -65,16 +65,13 @@ public class GlucoseAnalysis extends Activity {
         sessionAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, sessionIds);
         sessionSpinner.setAdapter(sessionAdapter);
 
-
         loadMeasurementSessionsFromFirebase();
 
         sessionSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
                 String selectedSessionId = sessionIds.get(position);
-                if (!selectedSessionId.equals("Szukaj")) {
-                    searchSessionInFirebase(selectedSessionId);
-                }
+                searchSessionInFirebase(selectedSessionId);
             }
 
             @Override
@@ -92,7 +89,7 @@ public class GlucoseAnalysis extends Activity {
         });
 
         // Inicjalizacja wykresu i zestawu danych
-        initChart(glucoseChart, "Glukoza");
+        initChart(glucoseChart, "Poziom glukozy we krwi [mg/gl]");
     }
 
     private void loadMeasurementSessionsFromFirebase() {
@@ -144,29 +141,17 @@ public class GlucoseAnalysis extends Activity {
         }
     }
 
-
     private void initChart(LineChart chart, String chartTitle) {
-        // Ustawianie podpisów osi
-        XAxis xAxis = chart.getXAxis();
-        xAxis.setValueFormatter(new IndexAxisValueFormatter() {
-            @Override
-            public String getAxisLabel(float value, AxisBase axis) {
-                return "Pomiar " + (int) value;
-            }
-        });
-        xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
-
         // Ustawianie parametrów osi Y
         YAxis leftAxis = chart.getAxisLeft();
-        leftAxis.setAxisMinimum(0f); // Minimalna wartość na osi Y
         leftAxis.setGranularity(1f); // Skok na osi Y
-        chart.getAxisRight().setEnabled(false); // Wyłącz oś Y po prawej stronie
+        leftAxis.setSpaceTop(50f);
+        chart.getAxisRight().setEnabled(false);
 
         // Konfigurowanie wykresu
         chart.setDrawGridBackground(false);
         chart.getDescription().setEnabled(false);
         chart.setNoDataText("Brak danych do wyświetlenia.");
-
         chart.setBackgroundColor(Color.WHITE);
 
         // Utworzenie zestawu danych dla wykresu glukozy
@@ -176,13 +161,29 @@ public class GlucoseAnalysis extends Activity {
         glucoseDataSet.setDrawFilled(false); // Wyłączenie wypełniania obszaru pod linią
         glucoseDataSet.setValueTextSize(12f);
 
+        // Ustawienie etykiet na osi X
+        xAxis = chart.getXAxis();
+        xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
+        xAxis.setGranularity(1f); // Skok na osi X
+        xAxis.setValueFormatter(new IndexAxisValueFormatter(new String[]{"", "Dzień 1", "Dzień 2", "Dzień 3", "Dzień 4", "Dzień 5"}));
+        xAxis.setAxisMinimum(-0.02f); // Minimalna wartość na osi X
+        xAxis.setAxisMaximum(6f);
+
+        chart.setExtraBottomOffset(20f);
+
+        chart.getDescription().setText(chartTitle);
+        chart.getDescription().setTextSize(15.5f);
+
+        glucoseDataSet.setColor(Color.BLUE);
+        glucoseDataSet.setLineWidth(2f);
+
 
         chart.animateX(500);
         chart.invalidate();
     }
 
     private List<Entry> getGlucoseDataFromFirebase(DataSnapshot dataSnapshot) {
-        //  Pobieranie danych z Firebase dla pomiarów glukozy i tworzenie listy Entry, gdzie każdy z elementów zawiera informację o numerze pomiaru i przypisanej do niego wartości poziomu glukozy
+        // Pobieranie danych z Firebase dla pomiarów glukozy i tworzenie listy Entry, gdzie każdy z elementów zawiera informację o numerze pomiaru i przypisanej do niego wartości poziomu glukozy
         List<Entry> entries = new ArrayList<>();
 
         // Pobieranie danych dla pięciu pomiarów glukozy
@@ -215,3 +216,4 @@ public class GlucoseAnalysis extends Activity {
         glucoseChart.invalidate();
     }
 }
+
