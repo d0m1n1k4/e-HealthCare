@@ -82,6 +82,19 @@
 
 
     <Button
+        android:id="@+id/downloadButton"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Pobierz wyniki"
+        android:textAllCaps="false"
+        android:textSize="20sp"
+        app:layout_constraintBottom_toTopOf="@+id/logout"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/resultHeartButton"/>
+
+
+    <Button
         android:id="@+id/logout"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -90,7 +103,7 @@
         android:textSize="20sp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/resultHeartButton" />
+        app:layout_constraintTop_toBottomOf="@+id/downloadButton" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

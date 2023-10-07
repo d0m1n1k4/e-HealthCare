@@ -13,7 +13,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
 public class Menu extends Activity {
-    private Button logout, btON, manualButton, bleButton, resultGlucoseButton, resultHeartButton;
+    private Button logout, btON, manualButton, bleButton, resultGlucoseButton, resultHeartButton, downloadButton;
 
     private TextView dashboardTextView;
     private BluetoothAdapter myBluetoothAdapter; //Deklaracja zmiennej myBluetoothAdapter do zarządzania funkcjami Bluetooth
@@ -78,6 +78,17 @@ public class Menu extends Activity {
                 startActivity(intent);
             }
         });
+
+
+        downloadButton = findViewById(R.id.downloadButton);
+        downloadButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(Menu.this, DownloadResults.class);
+                startActivity(intent);
+            }
+        });
+
 
 
         logout = findViewById(R.id.logout);
