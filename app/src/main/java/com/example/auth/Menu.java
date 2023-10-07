@@ -13,7 +13,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
 public class Menu extends Activity {
-    private Button logout, btON, manualButton, bleButton, resultButton;
+    private Button logout, btON, manualButton, bleButton, resultGlucoseButton, resultHeartButton;
 
     private TextView dashboardTextView;
     private BluetoothAdapter myBluetoothAdapter; //Deklaracja zmiennej myBluetoothAdapter do zarządzania funkcjami Bluetooth
@@ -33,12 +33,12 @@ public class Menu extends Activity {
         String userEmail = user.getEmail();
         String[] emailParts = userEmail.split("@");
         String username = emailParts[0];
-        String welcomeText = "Witaj " + username;
+        String welcomeText = "Zalogowany użytkownik: " + username;
         dashboardTextView.setText(welcomeText);
 
         btON = (Button) findViewById(R.id.btON);
         myBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-        btEnablingIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE); //Stworzenie intencji aktywacji Bluetooth.
+        btEnablingIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
         requestCodeForEnable = 1;
 
         bluetoothONMethod();
@@ -47,7 +47,6 @@ public class Menu extends Activity {
         bleButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Otwieranie nowego Dashboard zatytułowanego "Pomiary ręczne"
                 Intent intent = new Intent(Menu.this, BLEMeasure.class);
                 startActivity(intent);
             }
@@ -57,21 +56,29 @@ public class Menu extends Activity {
         manualButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Otwieranie nowego Dashboard zatytułowanego "Pomiary ręczne"
                 Intent intent = new Intent(Menu.this, MeasureManager.class);
                 startActivity(intent);
             }
         });
 
-        resultButton = findViewById(R.id.resultButton);
-        resultButton.setOnClickListener(new View.OnClickListener() {
+        resultGlucoseButton = findViewById(R.id.resultGlucoseButton);
+        resultGlucoseButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Otwieranie nowego Dashboard zatytułowanego "Pomiary ręczne"
                 Intent intent = new Intent(Menu.this, GlucoseAnalysis.class);
                 startActivity(intent);
             }
         });
+
+        resultHeartButton = findViewById(R.id.resultHeartButton);
+        resultHeartButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(Menu.this, HeartAnalysis.class);
+                startActivity(intent);
+            }
+        });
+
 
         logout = findViewById(R.id.logout);
         logout.setOnClickListener(new View.OnClickListener() {
@@ -102,7 +109,7 @@ public class Menu extends Activity {
         }
     }
     private void bluetoothONMethod() {
-        btON.setOnClickListener(new View.OnClickListener() { //Ustawienie nasłuchiwacza na kliknięcie przycisku "btON". Jeśli urządzenie obsługuje Bluetooth, a Bluetooth nie jest włączony, zostanie uruchomione okno dialogowe w celu włączenia Bluetooth.
+        btON.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if(myBluetoothAdapter==null)

@@ -31,6 +31,7 @@
         <activity android:name=".Menu"/>
         <activity android:name=".MeasureManager"/>
         <activity android:name=".GlucoseAnalysis" />
+        <activity android:name=".HeartAnalysis" />
         <activity android:name=".BLEMeasure" />
 
 

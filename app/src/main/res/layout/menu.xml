@@ -55,19 +55,31 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/manualButton"
-        app:layout_constraintBottom_toTopOf="@+id/resultButton" />
+        app:layout_constraintBottom_toTopOf="@+id/resultGlucoseButton" />
 
     <Button
-        android:id="@+id/resultButton"
+        android:id="@+id/resultGlucoseButton"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="Analiza wyników"
+        android:text="Analiza wyników glukozy"
         android:textSize="20sp"
         android:textAllCaps="false"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/bleButton"
-        app:layout_constraintBottom_toTopOf="@+id/logout" />
+        app:layout_constraintBottom_toTopOf="@+id/resultHeartButton" />
+
+    <Button
+        android:id="@+id/resultHeartButton"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Analiza wyników tętna"
+        android:textSize="20sp"
+        android:textAllCaps="false"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/resultGlucoseButton"/>
+
 
     <Button
         android:id="@+id/logout"
@@ -78,6 +90,7 @@
         android:textSize="20sp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/resultButton" />
+        app:layout_constraintTop_toBottomOf="@+id/resultHeartButton" />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>
