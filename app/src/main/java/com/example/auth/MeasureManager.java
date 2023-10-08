@@ -4,13 +4,13 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.LinearLayout;
-
 
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -65,7 +65,6 @@ public class MeasureManager extends Activity {
 
         LinearLayout buttonsLayout = findViewById(R.id.buttonsLayout);
 
-
         firebaseAuth = FirebaseAuth.getInstance();
 
         // Konfiguracja opcji logowania Google SignIn
@@ -93,8 +92,7 @@ public class MeasureManager extends Activity {
         adapter = new MeasurementAdapter(measurements);
         recyclerView.setAdapter(adapter);
 
-        //Przycisk "WYCZYŚĆ"
-
+        // Przycisk "WYCZYŚĆ"
         Button clearButton = findViewById(R.id.clearButton);
         clearButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -104,7 +102,6 @@ public class MeasureManager extends Activity {
         });
 
         // Przycisk "POBIERZ"
-
         Button backupButton = findViewById(R.id.backupButton);
         backupButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -114,7 +111,6 @@ public class MeasureManager extends Activity {
         });
 
         // Przycisk "ZAPISZ"
-
         Button saveButton = findViewById(R.id.saveButton);
         saveButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -149,7 +145,7 @@ public class MeasureManager extends Activity {
             if (resultCode == RESULT_OK) {
                 handleDriveSignInSuccess(data);
             } else {
-                //Wyświetli się log z błędem, jeśli logowanie do Google Drive nie powiodło się.
+                // Wyświetli się log z błędem, jeśli logowanie do Google Drive nie powiodło się.
                 String errorMessage = "Błąd autoryzacji Google Drive. Kod błędu: " + resultCode;
                 Log.e("GoogleDriveAuth", errorMessage);
                 Toast.makeText(getApplicationContext(), errorMessage, Toast.LENGTH_SHORT).show();
@@ -170,7 +166,8 @@ public class MeasureManager extends Activity {
                 e.printStackTrace();
                 return;
             }
-            //tworzenie obiektu służącego do reprezentowania poświadczeń i uprawnień konta Google, które będą używane do autoryzacji dostępu do Google Drive API
+            // Tworzenie obiektu służącego do reprezentowania poświadczeń i uprawnień konta Google,
+            // które będą używane do autoryzacji dostępu do Google Drive API
             GoogleAccountCredential credential = GoogleAccountCredential.usingOAuth2(
                     MeasureManager.this, Collections.singleton("https://www.googleapis.com/auth/drive.file"));
             credential.setSelectedAccount(account.getAccount());
@@ -193,23 +190,31 @@ public class MeasureManager extends Activity {
         List<Measurement> measurements = adapter.getMeasurements();
         String jsonData = createJsonData(measurements);
 
-        com.google.api.services.drive.model.File fileMetadata = new com.google.api.services.drive.model.File();
-        fileMetadata.setName("measurements_" + generateMeasurementId() + ".json");
-        fileMetadata.setMimeType("application/json");
+        // Sprawdź, czy wszystkie pola pomiarów są uzupełnione
+        boolean allFieldsFilled = checkAllFieldsFilled(measurements);
 
-        ByteArrayContent content = new ByteArrayContent("application/json", jsonData.getBytes());
+        if (allFieldsFilled) {
+            com.google.api.services.drive.model.File fileMetadata = new com.google.api.services.drive.model.File();
+            fileMetadata.setName("measurements_" + generateMeasurementId() + ".json");
+            fileMetadata.setMimeType("application/json");
 
-        try {
-            // Tworzenie pliku w Google Drive i wyświetlenie w logach jego ID po zapisie
-            com.google.api.services.drive.model.File file = driveService.files().create(fileMetadata, content)
-                    .setFields("id")
-                    .execute();
+            ByteArrayContent content = new ByteArrayContent("application/json", jsonData.getBytes());
 
-            Log.d("GoogleDriveSave", "File ID: " + file.getId());
-            Toast.makeText(getApplicationContext(), "Plik został zapisany w Dysku Google Drive.", Toast.LENGTH_SHORT).show();
-        } catch (IOException e) {
-            Log.e("GoogleDriveSave", "Error saving file to Google Drive: " + e.getMessage());
-            Toast.makeText(getApplicationContext(), "Błąd podczas zapisywania pliku na Dysku Google Drive.", Toast.LENGTH_SHORT).show();
+            try {
+                // Tworzenie pliku w Google Drive i wyświetlenie w logach jego ID po zapisie
+                com.google.api.services.drive.model.File file = driveService.files().create(fileMetadata, content)
+                        .setFields("id")
+                        .execute();
+
+                Log.d("GoogleDriveSave", "File ID: " + file.getId());
+                Toast.makeText(getApplicationContext(), "Plik został zapisany w Dysku Google Drive.", Toast.LENGTH_SHORT).show();
+            } catch (IOException e) {
+                Log.e("GoogleDriveSave", "Error saving file to Google Drive: " + e.getMessage());
+                Toast.makeText(getApplicationContext(), "Błąd podczas zapisywania pliku na Dysku Google Drive.", Toast.LENGTH_SHORT).show();
+            }
+        } else {
+            // Wyświetl komunikat o błędzie, jeśli nie wszystkie pola pomiarów są uzupełnione
+            Toast.makeText(getApplicationContext(), "Uzupełnij wszystkie pola pomiarów przed zapisaniem.", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -234,30 +239,63 @@ public class MeasureManager extends Activity {
         return jsonArray.toString();
     }
 
+    private boolean checkAllFieldsFilled(List<Measurement> measurements) {
+        for (Measurement measurement : measurements) {
+            String tetnoValue = measurement.getTetnoValue();
+            String glukozaValue = measurement.getGlukozaValue();
+            if (TextUtils.isEmpty(tetnoValue) || TextUtils.isEmpty(glukozaValue)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     private void saveMeasurementsToFirebase() {
         List<Measurement> measurements = adapter.getMeasurements();
+        boolean isValid = true;
 
         for (Measurement measurement : measurements) {
-            Log.d("TAG", "Tetno: " + measurement.getTetnoValue() + ", Glukoza: " + measurement.getGlukozaValue());
+            String tetnoValue = measurement.getTetnoValue();
+            String glukozaValue = measurement.getGlukozaValue();
+
+            // Sprawdź, czy wartości wprowadzonego tętna i glukozy są liczbami całkowitymi z zakresu 20-450
+            try {
+                int tetno = Integer.parseInt(tetnoValue);
+                int glukoza = Integer.parseInt(glukozaValue);
+
+                if (tetno < 20 || tetno > 450 || glukoza < 20 || glukoza > 450) {
+                    isValid = false;
+                    break;
+                }
+            } catch (NumberFormatException e) {
+                isValid = false;
+                break;
+            }
         }
 
-        FirebaseUser user = firebaseAuth.getCurrentUser();
+        if (isValid) {
+            // Zapisz dane pomiarowe do Firebase tylko jeśli są poprawne
+            FirebaseUser user = firebaseAuth.getCurrentUser();
 
-        if (user != null) {
-            String userId = user.getUid();
-            DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference();
-            DatabaseReference userReference = databaseReference.child("users").child(userId);
-            DatabaseReference measurementsReference = userReference.child("measurements");
-            String measurementId = generateMeasurementId();
-            DatabaseReference newMeasurementReference = measurementsReference.child(measurementId);
+            if (user != null) {
+                String userId = user.getUid();
+                DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference();
+                DatabaseReference userReference = databaseReference.child("users").child(userId);
+                DatabaseReference measurementsReference = userReference.child("measurements");
+                String measurementId = generateMeasurementId();
+                DatabaseReference newMeasurementReference = measurementsReference.child(measurementId);
 
-            for (int i = 0; i < measurements.size(); i++) {
-                Measurement measurement = measurements.get(i);
-                newMeasurementReference.child("tetno" + (i + 1)).setValue(measurement.getTetnoValue());
-                newMeasurementReference.child("glukoza" + (i + 1)).setValue(measurement.getGlukozaValue());
+                for (int i = 0; i < measurements.size(); i++) {
+                    Measurement measurement = measurements.get(i);
+                    newMeasurementReference.child("tetno" + (i + 1)).setValue(measurement.getTetnoValue());
+                    newMeasurementReference.child("glukoza" + (i + 1)).setValue(measurement.getGlukozaValue());
+                }
+
+                Toast.makeText(getApplicationContext(), "Dane pomiarowe zostały zapisane", Toast.LENGTH_SHORT).show();
             }
-
-            Toast.makeText(getApplicationContext(), "Dane pomiarowe zostały zapisane", Toast.LENGTH_SHORT).show();
+        } else {
+            // Wyświetl komunikat o błędzie
+            Toast.makeText(getApplicationContext(), "Przed zapisaniem sesji uzupełnij wszystkie pomiary liczbami całkowitymi z zakresu 20-450", Toast.LENGTH_SHORT).show();
         }
     }
 }

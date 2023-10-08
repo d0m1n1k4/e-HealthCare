@@ -12,7 +12,7 @@
         android:textSize="18sp"
         android:layout_marginTop="8dp" />
 
-    <!-- Dodajemy pola EditText na tętno i poziom glukozy -->
+
     <EditText
         android:id="@+id/manualTetnoEditText"
         android:layout_width="match_parent"

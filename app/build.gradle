@@ -61,7 +61,7 @@ dependencies {
     implementation 'com.google.http-client:google-http-client-gson:1.42.3'
     implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
     implementation 'io.reactivex:rxjava:1.0.10'
-    implementation 'com.google.api-client:google-api-client:2.2.0'
+    implementation 'com.google.api-client:google-api-client:1.31.2'
     implementation 'com.google.apis:google-api-services-drive:v2-rev393-1.25.0'
     implementation ('com.google.apis:google-api-services-drive:v3-rev203-1.25.0') {
         exclude group: 'com.google.guava' }
