@@ -11,6 +11,7 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.LinearLayout;
+import android.os.CountDownTimer;
 
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -47,7 +48,7 @@ import java.util.Locale;
 
 public class MeasureManager extends Activity {
 
-    private TextView headerTextView;
+    private TextView headerTextView, sessionNumberTextView;
     private FirebaseAuth firebaseAuth;
     private RecyclerView recyclerView;
     private MeasurementAdapter adapter;
@@ -78,6 +79,8 @@ public class MeasureManager extends Activity {
 
         headerTextView = findViewById(R.id.headerTextView);
         headerTextView.setText("Pomiary ręczne");
+
+        sessionNumberTextView = findViewById(R.id.sessionNumberTextView);
 
         recyclerView = findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -212,6 +215,9 @@ public class MeasureManager extends Activity {
                 Log.e("GoogleDriveSave", "Error saving file to Google Drive: " + e.getMessage());
                 Toast.makeText(getApplicationContext(), "Błąd podczas zapisywania pliku na Dysku Google Drive.", Toast.LENGTH_SHORT).show();
             }
+
+            String sessionNumber = generateMeasurementId();
+            sessionNumberTextView.setText("Numer zapisanej sesji: " + sessionNumber);
         } else {
             // Wyświetl komunikat o błędzie, jeśli nie wszystkie pola pomiarów są uzupełnione
             Toast.makeText(getApplicationContext(), "Uzupełnij wszystkie pola pomiarów przed zapisaniem.", Toast.LENGTH_SHORT).show();
@@ -274,7 +280,6 @@ public class MeasureManager extends Activity {
         }
 
         if (isValid) {
-            // Zapisz dane pomiarowe do Firebase tylko jeśli są poprawne
             FirebaseUser user = firebaseAuth.getCurrentUser();
 
             if (user != null) {
@@ -291,7 +296,24 @@ public class MeasureManager extends Activity {
                     newMeasurementReference.child("glukoza" + (i + 1)).setValue(measurement.getGlukozaValue());
                 }
 
-                Toast.makeText(getApplicationContext(), "Dane pomiarowe zostały zapisane", Toast.LENGTH_SHORT).show();
+                // Wyświetl komunikat "Dane pomiarowe zostały zapisane - numer sesji: yyyyMMdd_HHmmss"
+                String sessionNumber = generateMeasurementId();
+                final String toastMessage = "Dane pomiarowe zostały zapisane\nNumer sesji: " + sessionNumber;
+                sessionNumberTextView.setText("Numer zapisanej sesji: " + sessionNumber);
+
+                Toast.makeText(getApplicationContext(), toastMessage, Toast.LENGTH_LONG).show();
+
+                // Timer do ukrycia komunikatu po określonym czasie
+                new CountDownTimer(2000, 2000) {
+                    public void onTick(long millisUntilFinished) {
+                        Toast toast = Toast.makeText(getApplicationContext(), toastMessage, Toast.LENGTH_LONG);
+                        toast.show();
+                    }
+
+                    public void onFinish() {
+                        // Komunikat zostanie automatycznie zamknięty po zakończeniu timera
+                    }
+                }.start();
             }
         } else {
             // Wyświetl komunikat o błędzie
