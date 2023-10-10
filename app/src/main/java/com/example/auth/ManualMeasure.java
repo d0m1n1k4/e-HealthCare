@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.CountDownTimer;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
@@ -99,66 +100,85 @@ public class ManualMeasure extends Activity {
 
     private void saveMeasurementsToFirebase() {
         List<Measurement> measurements = adapter.getMeasurements();
+        boolean allFieldsFilled = true;
         boolean isValid = true;
 
         for (Measurement measurement : measurements) {
             String tetnoValue = measurement.getTetnoValue();
             String glukozaValue = measurement.getGlukozaValue();
 
-            // Sprawdź, czy wartości wprowadzonego tętna i glukozy są liczbami całkowitymi z zakresu 20-450
-            try {
-                int tetno = Integer.parseInt(tetnoValue);
-                int glukoza = Integer.parseInt(glukozaValue);
-
-                if (tetno < 20 || tetno > 450 || glukoza < 20 || glukoza > 450) {
-                    isValid = false;
-                    break;
-                }
-            } catch (NumberFormatException e) {
-                isValid = false;
+            // Sprawdzenie, czy wszystkie pola pomiarów są uzupełnione
+            if (TextUtils.isEmpty(tetnoValue) || TextUtils.isEmpty(glukozaValue)) {
+                allFieldsFilled = false;
                 break;
             }
         }
 
-        if (isValid) {
-            FirebaseUser user = firebaseAuth.getCurrentUser();
-
-            if (user != null) {
-                String userId = user.getUid();
-                DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference();
-                DatabaseReference userReference = databaseReference.child("users").child(userId);
-                DatabaseReference measurementsReference = userReference.child("measurements");
-                String measurementId = generateMeasurementId();
-                DatabaseReference newMeasurementReference = measurementsReference.child(measurementId);
-
-                for (int i = 0; i < measurements.size(); i++) {
-                    Measurement measurement = measurements.get(i);
-                    newMeasurementReference.child("tetno" + (i + 1)).setValue(measurement.getTetnoValue());
-                    newMeasurementReference.child("glukoza" + (i + 1)).setValue(measurement.getGlukozaValue());
-                }
-
-                // Wyświetl komunikat "Dane pomiarowe zostały zapisane - numer sesji: yyyyMMdd_HHmmss"
-                String sessionNumber = generateMeasurementId();
-                final String toastMessage = "Dane pomiarowe zostały zapisane\nNumer sesji: " + sessionNumber;
-                sessionNumberTextView.setText("Numer zapisanej sesji: " + sessionNumber);
-
-                Toast.makeText(getApplicationContext(), toastMessage, Toast.LENGTH_LONG).show();
-
-                // Timer do ukrycia komunikatu po określonym czasie
-                new CountDownTimer(2000, 2000) {
-                    public void onTick(long millisUntilFinished) {
-                        Toast toast = Toast.makeText(getApplicationContext(), toastMessage, Toast.LENGTH_LONG);
-                        toast.show();
-                    }
-
-                    public void onFinish() {
-                        // Komunikat zostanie automatycznie zamknięty po zakończeniu timera
-                    }
-                }.start();
-            }
+        if (!allFieldsFilled) {
+            // Komunikat wyświetlany w przypadku braku uzupełnienia wszystkich pomiarów
+            Toast.makeText(getApplicationContext(), "Uzupełnij wszystkie pomiary przed zapisaniem", Toast.LENGTH_SHORT).show();
         } else {
-            // Wyświetl komunikat o błędzie
-            Toast.makeText(getApplicationContext(), "Przed zapisaniem sesji uzupełnij wszystkie pomiary liczbami całkowitymi z zakresu 20-450", Toast.LENGTH_SHORT).show();
+            for (Measurement measurement : measurements) {
+                String tetnoValue = measurement.getTetnoValue();
+                String glukozaValue = measurement.getGlukozaValue();
+
+                // Sprawdzenie, czy wartości wprowadzonego tętna i glukozy są liczbami całkowitymi
+                try {
+                    int tetno = Integer.parseInt(tetnoValue);
+                    int glukoza = Integer.parseInt(glukozaValue);
+
+                    // Sprawdzenie, czy wartości mieszczą się w zakresie 20-450
+                    if (tetno < 20 || tetno > 450 || glukoza < 20 || glukoza > 450) {
+                        isValid = false;
+                        break;
+                    }
+                } catch (NumberFormatException e) {
+                    isValid = false;
+                    break;
+                }
+            }
+
+            if (!isValid) {
+                // Komunikat wyświetlany w przypadku wprowadzenia nieprawidłowych wartości tętna i glukozy
+                Toast.makeText(getApplicationContext(), "Wprowadź wartości z zakresu 20-450", Toast.LENGTH_SHORT).show();
+            } else {
+                FirebaseUser user = firebaseAuth.getCurrentUser();
+
+                if (user != null) {
+                    String userId = user.getUid();
+                    DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference();
+                    DatabaseReference userReference = databaseReference.child("users").child(userId);
+                    DatabaseReference measurementsReference = userReference.child("measurements");
+                    String measurementId = generateMeasurementId();
+                    DatabaseReference newMeasurementReference = measurementsReference.child(measurementId);
+
+                    for (int i = 0; i < measurements.size(); i++) {
+                        Measurement measurement = measurements.get(i);
+                        newMeasurementReference.child("tetno" + (i + 1)).setValue(measurement.getTetnoValue());
+                        newMeasurementReference.child("glukoza" + (i + 1)).setValue(measurement.getGlukozaValue());
+                    }
+
+                    // Wyświetlanie komunikatu "Dane pomiarowe zostały zapisane - numer sesji: yyyyMMdd_HHmmss"
+                    String sessionNumber = generateMeasurementId();
+                    final String toastMessage = "Dane pomiarowe zostały zapisane\nNumer sesji: " + sessionNumber;
+                    sessionNumberTextView.setText("Numer zapisanej sesji: " + sessionNumber);
+
+                    Toast.makeText(getApplicationContext(), toastMessage, Toast.LENGTH_LONG).show();
+
+                    // Timer do ukrycia komunikatu po określonym czasie
+                    new CountDownTimer(2000, 2000) {
+                        public void onTick(long millisUntilFinished) {
+                            Toast toast = Toast.makeText(getApplicationContext(), toastMessage, Toast.LENGTH_LONG);
+                            toast.show();
+                        }
+
+                        public void onFinish() {
+                            // Komunikat zostanie automatycznie zamknięty po upływie wskazanego czasu
+                        }
+
+                    }.start();
+                }
+            }
         }
     }
 }
