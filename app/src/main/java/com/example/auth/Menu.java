@@ -56,7 +56,7 @@ public class Menu extends Activity {
         manualButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(Menu.this, MeasureManager.class);
+                Intent intent = new Intent(Menu.this, ManualMeasure.class);
                 startActivity(intent);
             }
         });
