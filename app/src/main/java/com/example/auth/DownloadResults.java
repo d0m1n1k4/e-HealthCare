@@ -3,6 +3,8 @@ package com.example.auth;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
@@ -22,11 +24,12 @@ import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.common.api.Scope;
 import com.google.android.gms.tasks.Task;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
-import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
+import com.google.api.client.http.ByteArrayContent;
 import com.google.api.client.http.HttpTransport;
-import com.google.api.client.json.JsonFactory;
+import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.gson.GsonFactory;
 import com.google.api.services.drive.Drive;
+import com.google.api.services.drive.model.File;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -35,9 +38,12 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 public class DownloadResults extends Activity {
 
@@ -51,10 +57,15 @@ public class DownloadResults extends Activity {
     private static final String ANDROID_CLIENT_ID = "281646499375-lkjp0h2ubb2egfr1q2mnmqd0qv9n8bel.apps.googleusercontent.com";
     private static final String WEB_CLIENT_ID = "281646499375-q6jbaucmkbdln8bqrfuqrc0idadfi1de.apps.googleusercontent.com";
 
+    private Executor executor = Executors.newSingleThreadExecutor();
+    private Handler handler;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.download_results);
+
+        handler = new Handler(Looper.getMainLooper());
 
         sessionSpinner = findViewById(R.id.downloadSessionSpinner);
         driveButton = findViewById(R.id.driveButton);
@@ -101,11 +112,18 @@ public class DownloadResults extends Activity {
         });
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        handler.removeCallbacksAndMessages(null);
+        handler = null;
+    }
+
     private void signInToGoogleDrive() {
         GoogleSignInOptions signInOptions = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestEmail()
                 .requestScopes(new Scope("https://www.googleapis.com/auth/drive.file"))
-                .requestIdToken(WEB_CLIENT_ID) // Użyj identyfikatora klienta internetowego
+                .requestIdToken(WEB_CLIENT_ID) // Użycie identyfikatora klienta internetowego
                 .build();
 
         googleSignInClient = GoogleSignIn.getClient(this, signInOptions);
@@ -140,26 +158,46 @@ public class DownloadResults extends Activity {
         }
     }
 
+    private Drive getDriveService(GoogleAccountCredential credential) {
+        HttpTransport httpTransport = new NetHttpTransport();
+
+        return new Drive.Builder(httpTransport, new GsonFactory(), credential)
+                .build();
+    }
+
+
+    private String TAG = "DownloadResults";
+
     private void handleDriveSignInSuccess(GoogleSignInAccount account) {
+        Toast.makeText(getApplicationContext(), "Zalogowano do Google Drive.", Toast.LENGTH_SHORT).show();
+
         GoogleAccountCredential credential = GoogleAccountCredential.usingOAuth2(
-                DownloadResults.this, Collections.singleton("https://www.googleapis.com/auth/drive.file"));
+                this, Collections.singleton("https://www.googleapis.com/auth/drive.file"));
         credential.setSelectedAccount(account.getAccount());
 
-        HttpTransport httpTransport;
-        try {
-            httpTransport = GoogleNetHttpTransport.newTrustedTransport();
-        } catch (Exception e) {
-            e.printStackTrace();
-            return;
-        }
+        Drive driveService = getDriveService(credential);
 
-        JsonFactory JSON_FACTORY = GsonFactory.getDefaultInstance();
+        // Tworzenie file metadata
+        File fileMetadata = new File();
+        fileMetadata.setName("test.txt");
+        fileMetadata.setMimeType("text/plain");
 
-        Drive driveService = new Drive.Builder(httpTransport, JSON_FACTORY, credential)
-                .setApplicationName("e-HealthCare")
-                .build();
+        String fileContent = "Test";
+        ByteArrayContent mediaContent = ByteArrayContent.fromString("text/plain", fileContent);
 
-        Toast.makeText(getApplicationContext(), "Zalogowano do Google Drive.", Toast.LENGTH_SHORT).show();
+        executor.execute(() -> {
+            try {
+                File file = driveService.files().create(fileMetadata, mediaContent)
+                        .setFields("id")
+                        .execute();
+
+                handler.post(() -> {
+                    Toast.makeText(DownloadResults.this, "Plik utworzony, id=" + file.getId(), Toast.LENGTH_SHORT).show();
+                });
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
     }
 
     private void searchHeartRateSessionInFirebase(String sessionId) {

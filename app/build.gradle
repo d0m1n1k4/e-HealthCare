@@ -20,7 +20,6 @@ android {
     }
 
 
-
     buildTypes {
         release {
             minifyEnabled false
@@ -28,9 +27,6 @@ android {
         }
     }
 
-    configurations{
-    all*.exclude group: 'com.google.guava'
-    }
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
@@ -39,39 +35,29 @@ android {
 }
 
 dependencies {
-    implementation 'androidx.appcompat:appcompat:1.6.1'
-    implementation 'com.google.guava:guava:32.1.2-android'
-    implementation 'com.google.android.material:material:1.9.0'
-    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
-    implementation 'com.google.firebase:firebase-auth:22.1.2'
-    implementation 'com.google.api-client:google-api-client-android:1.31.3'
-    implementation 'com.google.firebase:firebase-analytics:21.3.0'
-    testImplementation 'junit:junit:4.13.2'
-    androidTestImplementation 'androidx.test.ext:junit:1.1.5'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.5'
     implementation "com.google.firebase:firebase-database"
-    implementation 'com.google.api-client:google-api-client-extensions:1.6.0-beta'
-    implementation platform("com.google.firebase:firebase-bom:32.2.3")
-    implementation 'com.google.firebase:firebase-analytics:21.3.0'
-    implementation ("com.microsoft.identity.client:msal:4.0.5") { exclude group: 'com.microsoft.device.display'}
-    implementation 'com.google.android.gms:play-services-drive:17.0.0'
-    implementation 'com.google.android.gms:play-services-auth:20.7.0'
-    implementation 'com.google.oauth-client:google-oauth-client:1.34.1'
-    implementation 'com.google.auth:google-auth-library-oauth2-http:1.19.0'
-    implementation 'com.google.http-client:google-http-client-gson:1.42.3'
+    implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
     implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
-    implementation 'io.reactivex:rxjava:1.0.10'
-    implementation 'com.google.api-client:google-api-client:1.31.2'
-    implementation 'com.google.apis:google-api-services-drive:v2-rev393-1.25.0'
-    implementation ('com.google.apis:google-api-services-drive:v3-rev203-1.25.0') {
-        exclude group: 'com.google.guava' }
-        implementation('com.google.apis:google-api-services-drive:v3-rev197-1.25.0') {
-            exclude group: 'com.google.guava'}
-            implementation('com.google.apis:google-api-services-drive:v3-rev136-1.25.0') {
-                exclude group: 'com.google.guava'}
     implementation 'com.github.PhilJay:MPAndroidChart:v3.1.0'
-
-    }
+    implementation 'com.google.android.gms:play-services-auth:20.7.0'
+    implementation 'com.google.android.gms:play-services-drive:17.0.0'
+    implementation 'com.google.android.material:material:1.9.0'
+    implementation 'com.google.api-client:google-api-client-android:1.31.4'
+    implementation 'com.google.apis:google-api-services-drive:v2-rev393-1.25.0'
+    implementation 'com.google.firebase:firebase-analytics'
+    implementation 'com.google.firebase:firebase-auth'
+    implementation 'com.google.http-client:google-http-client-gson:1.42.3'
+    implementation 'com.google.oauth-client:google-oauth-client:1.34.1'
+    implementation 'io.reactivex:rxjava:1.0.10'
+    implementation platform("com.google.firebase:firebase-bom:32.2.3")
+    implementation("com.microsoft.identity.client:msal:4.0.5") { exclude group: 'com.microsoft.device.display' }
+    implementation('com.google.apis:google-api-services-drive:v3-rev136-1.25.0')
+    implementation('com.google.apis:google-api-services-drive:v3-rev197-1.25.0')
+    testImplementation 'junit:junit:4.13.2'
+}
 
 
 apply plugin: 'com.google.gms.google-services'
