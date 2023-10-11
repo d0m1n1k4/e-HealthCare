@@ -52,12 +52,12 @@ public class ManualMeasure extends Activity {
         recyclerView = findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        List<Measurement> measurements = new ArrayList<>();
-        measurements.add(new Measurement("Pomiar 1", "", ""));
-        measurements.add(new Measurement("Pomiar 2", "", ""));
-        measurements.add(new Measurement("Pomiar 3", "", ""));
-        measurements.add(new Measurement("Pomiar 4", "", ""));
-        measurements.add(new Measurement("Pomiar 5", "", ""));
+            List<Measurement> measurements = new ArrayList<>();
+            measurements.add(new Measurement("Pomiar 1", "", ""));
+            measurements.add(new Measurement("Pomiar 2", "", ""));
+            measurements.add(new Measurement("Pomiar 3", "", ""));
+            measurements.add(new Measurement("Pomiar 4", "", ""));
+            measurements.add(new Measurement("Pomiar 5", "", ""));
 
         adapter = new MeasurementAdapter(measurements);
         recyclerView.setAdapter(adapter);

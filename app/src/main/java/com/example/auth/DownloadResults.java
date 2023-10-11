@@ -38,6 +38,9 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -50,9 +53,12 @@ public class DownloadResults extends Activity {
     private Spinner sessionSpinner;
     private String userId;
     private List<String> sessionIds;
+
+    private DatabaseReference sessionsReference;
     private ArrayAdapter<String> sessionAdapter;
     private Button driveButton;
     private GoogleSignInClient googleSignInClient;
+
     private static final int REQUEST_CODE_SIGN_IN = 1;
     private static final String ANDROID_CLIENT_ID = "281646499375-lkjp0h2ubb2egfr1q2mnmqd0qv9n8bel.apps.googleusercontent.com";
     private static final String WEB_CLIENT_ID = "281646499375-q6jbaucmkbdln8bqrfuqrc0idadfi1de.apps.googleusercontent.com";
@@ -75,6 +81,12 @@ public class DownloadResults extends Activity {
             userId = user.getUid();
         } else {
             userId = null;
+        }
+
+        // Pobieranie referencji do Firebase dla użytkownika
+        if (userId != null) {
+            DatabaseReference rootReference = FirebaseDatabase.getInstance().getReference();
+            sessionsReference = rootReference.child("users").child(userId).child("sessions");
         }
 
         sessionIds = new ArrayList<>();
@@ -177,13 +189,46 @@ public class DownloadResults extends Activity {
 
         Drive driveService = getDriveService(credential);
 
-        // Tworzenie file metadata
-        File fileMetadata = new File();
-        fileMetadata.setName("test.txt");
-        fileMetadata.setMimeType("text/plain");
+        // Pobieranie wybranej sesji z Firebase
+        DatabaseReference selectedSessionReference = sessionsReference.child(sessionSpinner.getSelectedItem().toString());
 
-        String fileContent = "Test";
-        ByteArrayContent mediaContent = ByteArrayContent.fromString("text/plain", fileContent);
+        selectedSessionReference.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                // Tworzenie pliku JSON z danymi sesji pomiarowej
+                JSONObject sessionData = new JSONObject();
+                for (DataSnapshot child : dataSnapshot.getChildren()) {
+                    String key = child.getKey();
+                    String value = child.getValue(String.class);
+                    try {
+                        sessionData.put(key, value);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                // Zapisywanie pliku JSON do Google Drive
+                String sessionName = sessionSpinner.getSelectedItem().toString();
+                String fileName = sessionName + ".json";
+                createJsonFileInDrive(driveService, fileName, sessionData.toString());
+
+                handler.post(() -> {
+                    Toast.makeText(DownloadResults.this, "Plik JSON utworzony w Google Drive.", Toast.LENGTH_SHORT).show();
+                });
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+            }
+        });
+    }
+
+    private void createJsonFileInDrive(Drive driveService, String fileName, String jsonContent) {
+        File fileMetadata = new File();
+        fileMetadata.setName(fileName);
+        fileMetadata.setMimeType("application/json");
+
+        ByteArrayContent mediaContent = ByteArrayContent.fromString("application/json", jsonContent);
 
         executor.execute(() -> {
             try {
@@ -192,13 +237,14 @@ public class DownloadResults extends Activity {
                         .execute();
 
                 handler.post(() -> {
-                    Toast.makeText(DownloadResults.this, "Plik utworzony, id=" + file.getId(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(DownloadResults.this, "Plik JSON utworzony w Google Drive. ID pliku: " + file.getId(), Toast.LENGTH_SHORT).show();
                 });
             } catch (IOException e) {
                 e.printStackTrace();
             }
         });
     }
+
 
     private void searchHeartRateSessionInFirebase(String sessionId) {
         if (userId != null) {
