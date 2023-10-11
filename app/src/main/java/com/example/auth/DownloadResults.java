@@ -190,16 +190,22 @@ public class DownloadResults extends Activity {
         Drive driveService = getDriveService(credential);
 
         // Pobieranie wybranej sesji z Firebase
-        DatabaseReference selectedSessionReference = sessionsReference.child(sessionSpinner.getSelectedItem().toString());
+        String selectedSessionId = sessionSpinner.getSelectedItem().toString();
+        DatabaseReference selectedSessionReference = FirebaseDatabase.getInstance().getReference()
+                .child("users")
+                .child(userId)
+                .child("measurements")
+                .child(selectedSessionId);
 
         selectedSessionReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                // Tworzenie pliku JSON z danymi sesji pomiarowej
                 JSONObject sessionData = new JSONObject();
+
                 for (DataSnapshot child : dataSnapshot.getChildren()) {
                     String key = child.getKey();
                     String value = child.getValue(String.class);
+
                     try {
                         sessionData.put(key, value);
                     } catch (JSONException e) {
@@ -207,13 +213,12 @@ public class DownloadResults extends Activity {
                     }
                 }
 
-                // Zapisywanie pliku JSON do Google Drive
-                String sessionName = sessionSpinner.getSelectedItem().toString();
+                // Zapisanie pliku JSON do Google Drive
+                String sessionName = selectedSessionId;
                 String fileName = sessionName + ".json";
                 createJsonFileInDrive(driveService, fileName, sessionData.toString());
 
                 handler.post(() -> {
-                    Toast.makeText(DownloadResults.this, "Plik JSON utworzony w Google Drive.", Toast.LENGTH_SHORT).show();
                 });
             }
 
@@ -222,6 +227,9 @@ public class DownloadResults extends Activity {
             }
         });
     }
+
+
+
 
     private void createJsonFileInDrive(Drive driveService, String fileName, String jsonContent) {
         File fileMetadata = new File();
@@ -237,7 +245,7 @@ public class DownloadResults extends Activity {
                         .execute();
 
                 handler.post(() -> {
-                    Toast.makeText(DownloadResults.this, "Plik JSON utworzony w Google Drive. ID pliku: " + file.getId(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(DownloadResults.this, "Plik JSON został utworzony w Google Drive: " + fileName, Toast.LENGTH_SHORT).show();
                 });
             } catch (IOException e) {
                 e.printStackTrace();
