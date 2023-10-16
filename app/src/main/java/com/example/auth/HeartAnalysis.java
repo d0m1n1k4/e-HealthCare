@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -140,6 +139,7 @@ public class HeartAnalysis extends Activity {
         }
     }
 
+
     private void initHeartRateChart(LineChart chart, String chartTitle) {
         // Ustawianie parametrów osi Y
         YAxis leftAxis = chart.getAxisLeft();
@@ -164,9 +164,9 @@ public class HeartAnalysis extends Activity {
         xAxis = chart.getXAxis();
         xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
         xAxis.setGranularity(1f); // Skok na osi X
-        xAxis.setValueFormatter(new IndexAxisValueFormatter(new String[]{"", "Dzień 1", "Dzień 2", "Dzień 3", "Dzień 4", "Dzień 5"}));
-        xAxis.setAxisMinimum(-0.02f); // Minimalna wartość na osi X
-        xAxis.setAxisMaximum(6f);
+        xAxis.setValueFormatter(new IndexAxisValueFormatter(new String[]{"", "g. 08:00", "g. 11:00", "g. 14:00", "g. 17:00", "g. 20:00"}));
+        xAxis.setAxisMinimum(0.5f); // Minimalna wartość na osi X
+        xAxis.setAxisMaximum(5.5f);
 
         chart.setExtraBottomOffset(20f);
 
@@ -186,16 +186,12 @@ public class HeartAnalysis extends Activity {
 
         // Pobieranie danych dla pięciu pomiarów pulsu
         for (int i = 1; i <= 5; i++) {
-            DataSnapshot sessionSnapshot = dataSnapshot.child("tetno" + i);
-            String heartRateValue = sessionSnapshot.getValue(String.class);
+            DataSnapshot heartRateSnapshot = dataSnapshot.child("tetno").child("tetno" + i);
+            String heartRateValue = heartRateSnapshot.child("value").getValue(String.class);
             if (heartRateValue != null) {
                 float heartRateFloatValue = Float.parseFloat(heartRateValue);
                 entries.add(new Entry((float) i, heartRateFloatValue));
             }
-        }
-
-        for (Entry entry : entries) {
-            Log.d("HeartRateData", "x: " + entry.getX() + ", y: " + entry.getY());
         }
 
         return entries;
@@ -213,4 +209,5 @@ public class HeartAnalysis extends Activity {
         heartRateChart.setData(heartRateData);
         heartRateChart.invalidate();
     }
+
 }

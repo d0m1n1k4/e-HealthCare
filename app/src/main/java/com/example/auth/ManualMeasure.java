@@ -56,11 +56,11 @@ public class ManualMeasure extends Activity {
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
         List<Measurement> measurements = new ArrayList<>();
-        measurements.add(new Measurement("Pomiar 1", "", ""));
-        measurements.add(new Measurement("Pomiar 2", "", ""));
-        measurements.add(new Measurement("Pomiar 3", "", ""));
-        measurements.add(new Measurement("Pomiar 4", "", ""));
-        measurements.add(new Measurement("Pomiar 5", "", ""));
+        measurements.add(new Measurement("Pomiar 1 - godz. 08:00", "", ""));
+        measurements.add(new Measurement("Pomiar 2 - godz. 11:00", "", ""));
+        measurements.add(new Measurement("Pomiar 3 - godz. 14:00", "", ""));
+        measurements.add(new Measurement("Pomiar 4 - godz. 17:00", "", ""));
+        measurements.add(new Measurement("Pomiar 5 - godz. 20:00", "", ""));
 
         adapter = new MeasurementAdapter(measurements);
         recyclerView.setAdapter(adapter);
@@ -122,29 +122,41 @@ public class ManualMeasure extends Activity {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.ITALY);
         return sdf.format(new Date());
     }
-
     private void saveMeasurementsToFirebase() {
         List<Measurement> measurements = adapter.getMeasurements();
         boolean allFieldsFilled = true;
         boolean isValid = true;
 
-        for (Measurement measurement : measurements) {
-            String tetnoValue = measurement.getTetnoValue();
-            String glukozaValue = measurement.getGlukozaValue();
-
-            if (TextUtils.isEmpty(tetnoValue) || TextUtils.isEmpty(glukozaValue)) {
-                allFieldsFilled = false;
-                break;
-            }
+        if (TextUtils.isEmpty(selectedDate)) {
+            Toast.makeText(getApplicationContext(), "Wybierz datę pomiaru", Toast.LENGTH_SHORT).show();
+            return;
         }
 
-        if (!allFieldsFilled) {
-            Toast.makeText(getApplicationContext(), "Uzupełnij wszystkie pomiary przed zapisaniem", Toast.LENGTH_SHORT).show();
-        } else {
-            for (Measurement measurement : measurements) {
+        FirebaseUser user = firebaseAuth.getCurrentUser();
+
+        if (user != null) {
+            String userId = user.getUid();
+            DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference();
+            DatabaseReference userReference = databaseReference.child("users").child(userId);
+            DatabaseReference measurementsReference = userReference.child("measurements");
+            String measurementId = generateMeasurementId();
+            DatabaseReference newMeasurementReference = measurementsReference.child(measurementId);
+
+            DatabaseReference glukozaReference = newMeasurementReference.child("glukoza");
+            DatabaseReference tetnoReference = newMeasurementReference.child("tetno");
+
+            for (int i = 0; i < measurements.size(); i++) {
+                Measurement measurement = measurements.get(i);
                 String tetnoValue = measurement.getTetnoValue();
                 String glukozaValue = measurement.getGlukozaValue();
 
+                // Sprawdzanie, czy pola są wypełnione
+                if (TextUtils.isEmpty(tetnoValue) || TextUtils.isEmpty(glukozaValue)) {
+                    allFieldsFilled = false;
+                    break;
+                }
+
+                // Sprawdzanie, czy wartości są w odpowiednim zakresie
                 try {
                     int tetno = Integer.parseInt(tetnoValue);
                     int glukoza = Integer.parseInt(glukozaValue);
@@ -157,40 +169,55 @@ public class ManualMeasure extends Activity {
                     isValid = false;
                     break;
                 }
+
+                String measurementTime = getMeasurementTime(i); // Pobranie godziny pomiaru
+                // Zapisanie wartości glukozy
+                DatabaseReference glukozaValueReference = glukozaReference.child("glukoza" + (i + 1));
+                glukozaValueReference.child("data").setValue(selectedDate);
+                glukozaValueReference.child("time").setValue(measurementTime);
+                glukozaValueReference.child("value").setValue(glukozaValue);
+
+                // Zapisanie wartości tetna
+                DatabaseReference tetnoValueReference = tetnoReference.child("tetno" + (i + 1));
+                tetnoValueReference.child("data").setValue(selectedDate);
+                tetnoValueReference.child("time").setValue(measurementTime);
+                tetnoValueReference.child("value").setValue(tetnoValue);
             }
 
-            if (!isValid) {
+            if (!allFieldsFilled) {
+                Toast.makeText(getApplicationContext(), "Uzupełnij wszystkie pomiary przed zapisaniem", Toast.LENGTH_SHORT).show();
+            } else if (!isValid) {
                 Toast.makeText(getApplicationContext(), "Wprowadź wartości z zakresu 20-450", Toast.LENGTH_SHORT).show();
             } else {
-                FirebaseUser user = firebaseAuth.getCurrentUser();
+                // Dodawanie daty do bazy danych
+                newMeasurementReference.child("date").setValue(selectedDate);
 
-                if (user != null) {
-                    String userId = user.getUid();
-                    DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference();
-                    DatabaseReference userReference = databaseReference.child("users").child(userId);
-                    DatabaseReference measurementsReference = userReference.child("measurements");
-                    String measurementId = generateMeasurementId();
-                    DatabaseReference newMeasurementReference = measurementsReference.child(measurementId);
+                String sessionNumber = generateMeasurementId();
+                final String toastMessage = "Dane pomiarowe zostały zapisane\nNumer sesji: " + sessionNumber;
+                sessionNumberTextView.setText("Numer zapisanej sesji: " + sessionNumber);
 
-                    for (int i = 0; i < measurements.size(); i++) {
-                        Measurement measurement = measurements.get(i);
-                        newMeasurementReference.child("tetno" + (i + 1)).setValue(measurement.getTetnoValue());
-                        newMeasurementReference.child("glukoza" + (i + 1)).setValue(measurement.getGlukozaValue());
-                    }
-
-                    if (!TextUtils.isEmpty(selectedDate)) {
-                        // Dodawanie daty do bazy danych
-                        newMeasurementReference.child("date").setValue(selectedDate);
-                    }
-
-                    String sessionNumber = generateMeasurementId();
-                    final String toastMessage = "Dane pomiarowe zostały zapisane\nNumer sesji: " + sessionNumber;
-                    sessionNumberTextView.setText("Numer zapisanej sesji: " + sessionNumber);
-
-                    Toast.makeText(getApplicationContext(), toastMessage, Toast.LENGTH_LONG).show();
-                }
+                Toast.makeText(getApplicationContext(), toastMessage, Toast.LENGTH_LONG).show();
             }
         }
     }
+
+    // Funkcja do pobierania godziny pomiaru na podstawie indeksu
+    private String getMeasurementTime(int index) {
+        switch (index) {
+            case 0:
+                return "08:00";
+            case 1:
+                return "11:00";
+            case 2:
+                return "14:00";
+            case 3:
+                return "17:00";
+            case 4:
+                return "20:00";
+            default:
+                return "";
+        }
+    }
+
 }
 
