@@ -1,16 +1,16 @@
 package com.example.auth;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.content.Intent;
+import android.app.DatePickerDialog;
 import android.os.Bundle;
-import android.os.CountDownTimer;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.DatePicker;
+
 
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -22,19 +22,21 @@ import com.google.firebase.database.FirebaseDatabase;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
 public class ManualMeasure extends Activity {
 
-    private TextView headerTextView, sessionNumberTextView;
+    private TextView headerTextView, sessionNumberTextView, selectedDateTextView;
     private FirebaseAuth firebaseAuth;
     private RecyclerView recyclerView;
     private MeasurementAdapter adapter;
 
+    // Dodatkowe pole do przechowywania daty
+    private String selectedDate = "";
 
-    @SuppressLint("SetTextI18n")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -48,21 +50,21 @@ public class ManualMeasure extends Activity {
         headerTextView.setText("Pomiary ręczne");
 
         sessionNumberTextView = findViewById(R.id.sessionNumberTextView);
+        selectedDateTextView = findViewById(R.id.selectedDateTextView);
 
         recyclerView = findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-            List<Measurement> measurements = new ArrayList<>();
-            measurements.add(new Measurement("Pomiar 1", "", ""));
-            measurements.add(new Measurement("Pomiar 2", "", ""));
-            measurements.add(new Measurement("Pomiar 3", "", ""));
-            measurements.add(new Measurement("Pomiar 4", "", ""));
-            measurements.add(new Measurement("Pomiar 5", "", ""));
+        List<Measurement> measurements = new ArrayList<>();
+        measurements.add(new Measurement("Pomiar 1", "", ""));
+        measurements.add(new Measurement("Pomiar 2", "", ""));
+        measurements.add(new Measurement("Pomiar 3", "", ""));
+        measurements.add(new Measurement("Pomiar 4", "", ""));
+        measurements.add(new Measurement("Pomiar 5", "", ""));
 
         adapter = new MeasurementAdapter(measurements);
         recyclerView.setAdapter(adapter);
 
-        // Przycisk "WYCZYŚĆ"
         Button clearButton = findViewById(R.id.clearButton);
         clearButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -71,8 +73,6 @@ public class ManualMeasure extends Activity {
             }
         });
 
-
-        // Przycisk "ZAPISZ"
         Button saveButton = findViewById(R.id.saveButton);
         saveButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -81,20 +81,45 @@ public class ManualMeasure extends Activity {
             }
         });
 
-        // Przycisk "POWRÓT"
         Button backButton = findViewById(R.id.backButton);
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(ManualMeasure.this, Menu.class);
-                startActivity(intent);
+                finish();
+            }
+        });
+
+        // Obsługa przycisku "DATA POMIARU"
+        Button selectDateButton = findViewById(R.id.selectDateButton);
+        selectDateButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showDatePickerDialog();
             }
         });
     }
 
+    private void showDatePickerDialog() {
+        // Pobieranie aktualnej daty
+        Calendar calendar = Calendar.getInstance();
+        int year = calendar.get(Calendar.YEAR);
+        int month = calendar.get(Calendar.MONTH);
+        int day = calendar.get(Calendar.DAY_OF_MONTH);
+
+        DatePickerDialog datePickerDialog = new DatePickerDialog(this, new DatePickerDialog.OnDateSetListener() {
+            @Override
+            public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
+                // Aktualizacja wybranej daty i wyświetlenie na ekranie
+                selectedDate = year + "-" + (month + 1) + "-" + dayOfMonth;
+                selectedDateTextView.setText("Data pomiaru: " + selectedDate);
+            }
+        }, year, month, day);
+
+        datePickerDialog.show();
+    }
 
     private String generateMeasurementId() {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault());
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.ITALY);
         return sdf.format(new Date());
     }
 
@@ -107,7 +132,6 @@ public class ManualMeasure extends Activity {
             String tetnoValue = measurement.getTetnoValue();
             String glukozaValue = measurement.getGlukozaValue();
 
-            // Sprawdzenie, czy wszystkie pola pomiarów są uzupełnione
             if (TextUtils.isEmpty(tetnoValue) || TextUtils.isEmpty(glukozaValue)) {
                 allFieldsFilled = false;
                 break;
@@ -115,19 +139,16 @@ public class ManualMeasure extends Activity {
         }
 
         if (!allFieldsFilled) {
-            // Komunikat wyświetlany w przypadku braku uzupełnienia wszystkich pomiarów
             Toast.makeText(getApplicationContext(), "Uzupełnij wszystkie pomiary przed zapisaniem", Toast.LENGTH_SHORT).show();
         } else {
             for (Measurement measurement : measurements) {
                 String tetnoValue = measurement.getTetnoValue();
                 String glukozaValue = measurement.getGlukozaValue();
 
-                // Sprawdzenie, czy wartości wprowadzonego tętna i glukozy są liczbami całkowitymi
                 try {
                     int tetno = Integer.parseInt(tetnoValue);
                     int glukoza = Integer.parseInt(glukozaValue);
 
-                    // Sprawdzenie, czy wartości mieszczą się w zakresie 20-450
                     if (tetno < 20 || tetno > 450 || glukoza < 20 || glukoza > 450) {
                         isValid = false;
                         break;
@@ -139,7 +160,6 @@ public class ManualMeasure extends Activity {
             }
 
             if (!isValid) {
-                // Komunikat wyświetlany w przypadku wprowadzenia nieprawidłowych wartości tętna i glukozy
                 Toast.makeText(getApplicationContext(), "Wprowadź wartości z zakresu 20-450", Toast.LENGTH_SHORT).show();
             } else {
                 FirebaseUser user = firebaseAuth.getCurrentUser();
@@ -158,27 +178,19 @@ public class ManualMeasure extends Activity {
                         newMeasurementReference.child("glukoza" + (i + 1)).setValue(measurement.getGlukozaValue());
                     }
 
-                    // Wyświetlanie komunikatu "Dane pomiarowe zostały zapisane - numer sesji: yyyyMMdd_HHmmss"
+                    if (!TextUtils.isEmpty(selectedDate)) {
+                        // Dodawanie daty do bazy danych
+                        newMeasurementReference.child("date").setValue(selectedDate);
+                    }
+
                     String sessionNumber = generateMeasurementId();
                     final String toastMessage = "Dane pomiarowe zostały zapisane\nNumer sesji: " + sessionNumber;
                     sessionNumberTextView.setText("Numer zapisanej sesji: " + sessionNumber);
 
                     Toast.makeText(getApplicationContext(), toastMessage, Toast.LENGTH_LONG).show();
-
-                    // Timer do ukrycia komunikatu po określonym czasie
-                    new CountDownTimer(2000, 2000) {
-                        public void onTick(long millisUntilFinished) {
-                            Toast toast = Toast.makeText(getApplicationContext(), toastMessage, Toast.LENGTH_LONG);
-                            toast.show();
-                        }
-
-                        public void onFinish() {
-                            // Komunikat zostanie automatycznie zamknięty po upływie wskazanego czasu
-                        }
-
-                    }.start();
                 }
             }
         }
     }
 }
+

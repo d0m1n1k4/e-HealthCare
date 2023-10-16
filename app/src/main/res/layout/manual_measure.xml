@@ -18,15 +18,34 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
+    <Button
+        android:id="@+id/selectDateButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="DATA POMIARU"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/headerTextView"
+        android:layout_marginTop="8dp" />
+
+    <TextView
+        android:id="@+id/selectedDateTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text=""
+        android:textSize="16sp"
+        app:layout_constraintStart_toEndOf="@+id/selectDateButton"
+        app:layout_constraintTop_toTopOf="@+id/selectDateButton"
+        app:layout_constraintBottom_toBottomOf="@+id/selectDateButton"
+        android:layout_marginStart="8dp" />
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerView"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         app:layout_constraintBottom_toTopOf="@+id/buttonsLayout"
-        app:layout_constraintTop_toBottomOf="@+id/headerTextView"
+        app:layout_constraintTop_toBottomOf="@+id/selectDateButton"
         app:layout_constraintVertical_bias="0.0"
-        tools:layout_editor_absoluteX="0dp"
-        tools:listitem="@layout/measurement_item" />
+        tools:layout_editor_absoluteX="0dp" />
 
     <LinearLayout
         android:id="@+id/buttonsLayout"
@@ -81,5 +100,4 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="parent" />
-
 </androidx.constraintlayout.widget.ConstraintLayout>
