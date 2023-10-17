@@ -42,12 +42,9 @@ import com.nimbusds.jose.shaded.json.JSONObject;
 import org.json.JSONArray;
 
 import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
@@ -68,8 +65,11 @@ public class DownloadResults extends Activity {
     private static final String WEB_CLIENT_ID = "281646499375-q6jbaucmkbdln8bqrfuqrc0idadfi1de.apps.googleusercontent.com";
 
     private String selectedDate = "";
+
+    private String selectedSessionId = "";
     private Executor executor = Executors.newSingleThreadExecutor();
     private Handler handler;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -95,12 +95,12 @@ public class DownloadResults extends Activity {
         // Inicjalizacja adaptera
         adapter = new MeasurementAdapter(measurements);
 
-
         loadHeartRateSessionsFromFirebase();
 
         sessionSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
+                selectedSessionId = sessionIds.get(position);
                 String selectedSessionId = sessionIds.get(position);
                 searchHeartRateSessionInFirebase(selectedSessionId);
             }
@@ -191,14 +191,14 @@ public class DownloadResults extends Activity {
 
         // Tworzenie pliku JSON
         String jsonData = createJsonData();
-        String jsonFileName = generateMeasurementId() + ".json";
+        String jsonFileName = selectedSessionId + ".json";
 
         executor.execute(() -> {
             try {
                 File file = createJsonFile(driveService, jsonFileName, jsonData);
 
                 handler.post(() -> {
-                    Toast.makeText(DownloadResults.this, "Plik JSON został zapisany w Google Drive, ID=" + file.getId(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(DownloadResults.this, "Plik JSON został zapisany w Google Drive:" + jsonFileName, Toast.LENGTH_SHORT).show();
                 });
             } catch (IOException e) {
                 e.printStackTrace();
@@ -208,7 +208,7 @@ public class DownloadResults extends Activity {
 
     private String createJsonData() {
         JSONObject sessionData = new JSONObject();
-        sessionData.put("id", generateMeasurementId());
+        sessionData.put("id", selectedSessionId);
 
         JSONArray glukozaArray = new JSONArray();
         JSONArray tetnoArray = new JSONArray();
@@ -257,11 +257,7 @@ public class DownloadResults extends Activity {
     }
 
     private String generateMeasurementId() {
-        // Ustalenie formatu daty i godziny (yyyyMMdd_HHmmss)
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.ITALY);
-        String timestamp = sdf.format(new Date());
-
-        return timestamp;
+        return selectedSessionId;
     }
 
     private String getMeasurementTime(int index) {
@@ -315,4 +311,3 @@ public class DownloadResults extends Activity {
         }
     }
 }
-
