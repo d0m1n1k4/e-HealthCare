@@ -37,14 +37,17 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.nimbusds.jose.shaded.json.JSONObject;
 
-import org.json.JSONException;
-import org.json.JSONObject;
+import org.json.JSONArray;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
@@ -53,16 +56,18 @@ public class DownloadResults extends Activity {
     private Spinner sessionSpinner;
     private String userId;
     private List<String> sessionIds;
-
-    private DatabaseReference sessionsReference;
     private ArrayAdapter<String> sessionAdapter;
+    private List<Measurement> measurements = new ArrayList<>();
+
+    private MeasurementAdapter adapter;
+
     private Button driveButton;
     private GoogleSignInClient googleSignInClient;
-
     private static final int REQUEST_CODE_SIGN_IN = 1;
     private static final String ANDROID_CLIENT_ID = "281646499375-lkjp0h2ubb2egfr1q2mnmqd0qv9n8bel.apps.googleusercontent.com";
     private static final String WEB_CLIENT_ID = "281646499375-q6jbaucmkbdln8bqrfuqrc0idadfi1de.apps.googleusercontent.com";
 
+    private String selectedDate = "";
     private Executor executor = Executors.newSingleThreadExecutor();
     private Handler handler;
 
@@ -83,15 +88,13 @@ public class DownloadResults extends Activity {
             userId = null;
         }
 
-        // Pobieranie referencji do Firebase dla użytkownika
-        if (userId != null) {
-            DatabaseReference rootReference = FirebaseDatabase.getInstance().getReference();
-            sessionsReference = rootReference.child("users").child(userId).child("sessions");
-        }
-
         sessionIds = new ArrayList<>();
         sessionAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, sessionIds);
         sessionSpinner.setAdapter(sessionAdapter);
+
+        // Inicjalizacja adaptera
+        adapter = new MeasurementAdapter(measurements);
+
 
         loadHeartRateSessionsFromFirebase();
 
@@ -135,7 +138,7 @@ public class DownloadResults extends Activity {
         GoogleSignInOptions signInOptions = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestEmail()
                 .requestScopes(new Scope("https://www.googleapis.com/auth/drive.file"))
-                .requestIdToken(WEB_CLIENT_ID) // Użycie identyfikatora klienta internetowego
+                .requestIdToken(WEB_CLIENT_ID)
                 .build();
 
         googleSignInClient = GoogleSignIn.getClient(this, signInOptions);
@@ -177,9 +180,6 @@ public class DownloadResults extends Activity {
                 .build();
     }
 
-
-    private String TAG = "DownloadResults";
-
     private void handleDriveSignInSuccess(GoogleSignInAccount account) {
         Toast.makeText(getApplicationContext(), "Zalogowano do Google Drive.", Toast.LENGTH_SHORT).show();
 
@@ -189,63 +189,16 @@ public class DownloadResults extends Activity {
 
         Drive driveService = getDriveService(credential);
 
-        // Pobieranie wybranej sesji z Firebase
-        String selectedSessionId = sessionSpinner.getSelectedItem().toString();
-        DatabaseReference selectedSessionReference = FirebaseDatabase.getInstance().getReference()
-                .child("users")
-                .child(userId)
-                .child("measurements")
-                .child(selectedSessionId);
-
-        selectedSessionReference.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                JSONObject sessionData = new JSONObject();
-
-                for (DataSnapshot child : dataSnapshot.getChildren()) {
-                    String key = child.getKey();
-                    String value = child.getValue(String.class);
-
-                    try {
-                        sessionData.put(key, value);
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                }
-
-                // Zapisanie pliku JSON do Google Drive
-                String sessionName = selectedSessionId;
-                String fileName = sessionName + ".json";
-                createJsonFileInDrive(driveService, fileName, sessionData.toString());
-
-                handler.post(() -> {
-                });
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-            }
-        });
-    }
-
-
-
-
-    private void createJsonFileInDrive(Drive driveService, String fileName, String jsonContent) {
-        File fileMetadata = new File();
-        fileMetadata.setName(fileName);
-        fileMetadata.setMimeType("application/json");
-
-        ByteArrayContent mediaContent = ByteArrayContent.fromString("application/json", jsonContent);
+        // Tworzenie pliku JSON
+        String jsonData = createJsonData();
+        String jsonFileName = generateMeasurementId() + ".json";
 
         executor.execute(() -> {
             try {
-                File file = driveService.files().create(fileMetadata, mediaContent)
-                        .setFields("id")
-                        .execute();
+                File file = createJsonFile(driveService, jsonFileName, jsonData);
 
                 handler.post(() -> {
-                    Toast.makeText(DownloadResults.this, "Plik JSON został utworzony w Google Drive: " + fileName, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(DownloadResults.this, "Plik JSON został zapisany w Google Drive, ID=" + file.getId(), Toast.LENGTH_SHORT).show();
                 });
             } catch (IOException e) {
                 e.printStackTrace();
@@ -253,31 +206,73 @@ public class DownloadResults extends Activity {
         });
     }
 
+    private String createJsonData() {
+        JSONObject sessionData = new JSONObject();
+        sessionData.put("id", generateMeasurementId());
 
-    private void searchHeartRateSessionInFirebase(String sessionId) {
-        if (userId != null) {
-            FirebaseDatabase database = FirebaseDatabase.getInstance();
-            DatabaseReference sessionsReference = database.getReference("users").child(userId).child("sessions");
+        JSONArray glukozaArray = new JSONArray();
+        JSONArray tetnoArray = new JSONArray();
+        List<Measurement> measurements = adapter.getMeasurements();
 
-            DatabaseReference selectedSessionReference = sessionsReference.child(sessionId);
+        for (int i = 0; i < measurements.size(); i++) {
+            Measurement measurement = measurements.get(i);
+            String tetnoValue = measurement.getTetnoValue();
+            String glukozaValue = measurement.getGlukozaValue();
+            String measurementTime = getMeasurementTime(i);
 
-            selectedSessionReference.addListenerForSingleValueEvent(new ValueEventListener() {
-                @Override
-                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                }
+            if (!tetnoValue.isEmpty() && !glukozaValue.isEmpty()) {
+                JSONObject glukozaItem = new JSONObject();
+                glukozaItem.put("date", selectedDate);
+                glukozaItem.put("time", measurementTime);
+                glukozaItem.put("value", Integer.parseInt(glukozaValue));
 
-                @Override
-                public void onCancelled(DatabaseError databaseError) {
-                }
-            });
+                JSONObject tetnoItem = new JSONObject();
+                tetnoItem.put("date", selectedDate);
+                tetnoItem.put("time", measurementTime);
+                tetnoItem.put("value", Integer.parseInt(tetnoValue));
+
+                glukozaArray.put(glukozaItem);
+                tetnoArray.put(tetnoItem);
+            }
         }
+
+        sessionData.put("glukoza", glukozaArray);
+        sessionData.put("tetno", tetnoArray);
+
+        return sessionData.toString();
+    }
+
+    private File createJsonFile(Drive driveService, String fileName, String fileContent) throws IOException {
+        File fileMetadata = new File();
+        fileMetadata.setName(fileName);
+        fileMetadata.setMimeType("application/json");
+
+        ByteArrayContent mediaContent = ByteArrayContent.fromString("application/json", fileContent);
+
+        File file = driveService.files().create(fileMetadata, mediaContent)
+                .setFields("id")
+                .execute();
+
+        return file;
+    }
+
+    private String generateMeasurementId() {
+        // Ustalenie formatu daty i godziny (yyyyMMdd_HHmmss)
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.ITALY);
+        String timestamp = sdf.format(new Date());
+
+        return timestamp;
+    }
+
+    private String getMeasurementTime(int index) {
+        // Implementacja pobierania czasu pomiaru na podstawie indeksu
+        return "CZAS POMIARU";
     }
 
     private void loadHeartRateSessionsFromFirebase() {
         if (userId != null) {
             DatabaseReference rootReference = FirebaseDatabase.getInstance().getReference();
             DatabaseReference heartRateReference = rootReference.child("users").child(userId).child("measurements");
-
             ValueEventListener valueEventListener = heartRateReference.addValueEventListener(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
@@ -294,8 +289,30 @@ public class DownloadResults extends Activity {
 
                 @Override
                 public void onCancelled(@NonNull DatabaseError databaseError) {
+                    // Obsługa błędów
+                }
+            });
+        }
+    }
+
+    private void searchHeartRateSessionInFirebase(String sessionId) {
+        if (userId != null) {
+            DatabaseReference sessionsReference = FirebaseDatabase.getInstance().getReference("users").child(userId).child("sessions");
+
+            DatabaseReference selectedSessionReference = sessionsReference.child(sessionId);
+
+            selectedSessionReference.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+                    // Obsługa błędów
                 }
             });
         }
     }
 }
+

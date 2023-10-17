@@ -34,7 +34,6 @@ public class ManualMeasure extends Activity {
     private RecyclerView recyclerView;
     private MeasurementAdapter adapter;
 
-    // Dodatkowe pole do przechowywania daty
     private String selectedDate = "";
 
     @Override
@@ -136,6 +135,7 @@ public class ManualMeasure extends Activity {
 
         if (user != null) {
             String userId = user.getUid();
+            selectedDate = generateMeasurementId();
             DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference();
             DatabaseReference userReference = databaseReference.child("users").child(userId);
             DatabaseReference measurementsReference = userReference.child("measurements");
@@ -217,6 +217,9 @@ public class ManualMeasure extends Activity {
             default:
                 return "";
         }
+    }
+    public String getSelectedDate() {
+        return selectedDate;
     }
 
 }
