@@ -16,6 +16,7 @@ import android.widget.Spinner;
 import androidx.annotation.NonNull;
 
 import com.github.mikephil.charting.charts.LineChart;
+import com.github.mikephil.charting.components.LimitLine;
 import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.Entry;
@@ -159,7 +160,7 @@ public class GlucoseAnalysis extends Activity {
         glucoseDataSet.setColor(Color.BLACK);
         glucoseDataSet.setCircleColor(Color.BLACK);
         glucoseDataSet.setDrawFilled(false); // Wyłączenie wypełniania obszaru pod linią
-        glucoseDataSet.setValueTextSize(12f);
+        glucoseDataSet.setValueTextSize(10f);
 
         // Ustawienie etykiet na osi X
         xAxis = chart.getXAxis();
@@ -169,12 +170,25 @@ public class GlucoseAnalysis extends Activity {
         xAxis.setAxisMinimum(-0.02f); // Minimalna wartość na osi X
         xAxis.setAxisMaximum(6f);
 
+        LimitLine lowerLimitLine = new LimitLine(70f, "<70 mg/dl");
+        lowerLimitLine.setLineColor(Color.RED);
+        lowerLimitLine.setLineWidth(2f);
+        lowerLimitLine.setLabelPosition(LimitLine.LimitLabelPosition.RIGHT_TOP);
+        leftAxis.addLimitLine(lowerLimitLine);
+
+        LimitLine upperLimitLine = new LimitLine(99f, ">99 mg/dl");
+        upperLimitLine.setLineColor(Color.RED);
+        upperLimitLine.setLabelPosition(LimitLine.LimitLabelPosition.RIGHT_TOP);
+        upperLimitLine.setLineWidth(2f);
+        leftAxis.addLimitLine(upperLimitLine);
+
+
         chart.setExtraBottomOffset(20f);
 
         chart.getDescription().setText(chartTitle);
         chart.getDescription().setTextSize(15.5f);
 
-        glucoseDataSet.setColor(Color.BLUE);
+        glucoseDataSet.setColor(Color.parseColor("#08CBE2"));
         glucoseDataSet.setLineWidth(2f);
 
         chart.animateX(500);

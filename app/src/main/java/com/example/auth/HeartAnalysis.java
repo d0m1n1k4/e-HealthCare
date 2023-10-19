@@ -14,6 +14,7 @@ import android.widget.Spinner;
 import androidx.annotation.NonNull;
 
 import com.github.mikephil.charting.charts.LineChart;
+import com.github.mikephil.charting.components.LimitLine;
 import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.Entry;
@@ -158,7 +159,7 @@ public class HeartAnalysis extends Activity {
         heartRateDataSet.setColor(Color.BLACK);
         heartRateDataSet.setCircleColor(Color.BLACK);
         heartRateDataSet.setDrawFilled(false); // Wyłączenie wypełniania obszaru pod linią
-        heartRateDataSet.setValueTextSize(12f);
+        heartRateDataSet.setValueTextSize(10f);
 
         // Ustawienie etykiet na osi X
         xAxis = chart.getXAxis();
@@ -168,12 +169,24 @@ public class HeartAnalysis extends Activity {
         xAxis.setAxisMinimum(0.5f); // Minimalna wartość na osi X
         xAxis.setAxisMaximum(5.5f);
 
+        LimitLine lowerLimitLine = new LimitLine(60f, "<60 bpm");
+        lowerLimitLine.setLineColor(Color.RED);
+        lowerLimitLine.setLineWidth(2f);
+        lowerLimitLine.setLabelPosition(LimitLine.LimitLabelPosition.RIGHT_TOP);
+        leftAxis.addLimitLine(lowerLimitLine);
+
+        LimitLine upperLimitLine = new LimitLine(100f, ">100 bpm");
+        upperLimitLine.setLineColor(Color.RED);
+        upperLimitLine.setLineWidth(2f);
+        upperLimitLine.setLabelPosition(LimitLine.LimitLabelPosition.RIGHT_TOP);
+        leftAxis.addLimitLine(upperLimitLine);
+
         chart.setExtraBottomOffset(20f);
 
         chart.getDescription().setText(chartTitle);
         chart.getDescription().setTextSize(15.5f);
 
-        heartRateDataSet.setColor(Color.BLUE);
+        heartRateDataSet.setColor(Color.parseColor("#08CBE2"));
         heartRateDataSet.setLineWidth(2f);
 
         chart.animateX(500);
