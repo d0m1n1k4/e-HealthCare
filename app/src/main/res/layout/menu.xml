@@ -11,6 +11,7 @@
     <TextView
         android:id="@+id/dashboardTextView"
         android:layout_width="0dp"
+        android:typeface="sans"
         android:layout_height="wrap_content"
         android:layout_marginTop="28dp"
         android:gravity="center"
@@ -28,6 +29,7 @@
         android:text="Uruchom Bluetooth"
         android:textAllCaps="false"
         android:textSize="20sp"
+        android:typeface="sans"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/dashboardTextView" />
@@ -37,6 +39,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="4dp"
+        android:typeface="sans"
         android:text="Pomiary BLE"
         android:textAllCaps="false"
         android:textSize="20sp"
@@ -48,6 +51,7 @@
         android:id="@+id/resultHeartButton"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:typeface="sans"
         android:layout_marginTop="4dp"
         android:text="Analiza wyników tętna"
         android:textAllCaps="false"
@@ -62,6 +66,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="4dp"
         android:text="Pobierz wyniki"
+        android:typeface="sans"
         android:textAllCaps="false"
         android:textSize="20sp"
         app:layout_constraintEnd_toEndOf="parent"
@@ -74,6 +79,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:text="Log Out"
+        android:typeface="sans"
         android:textAllCaps="false"
         android:textSize="20sp"
         app:layout_constraintEnd_toEndOf="parent"
@@ -86,6 +92,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="4dp"
         android:text="Analiza wyników glukozy"
+        android:typeface="sans"
         android:textAllCaps="false"
         android:textSize="20sp"
         app:layout_constraintEnd_toEndOf="parent"
@@ -99,6 +106,7 @@
         android:text="Wyłącz Bluetooth"
         android:textAllCaps="false"
         android:textSize="20sp"
+        android:typeface="sans"
         app:layout_constraintBottom_toTopOf="@+id/logout"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -111,6 +119,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:text="Pomiary ręczne"
+        android:typeface="sans"
         android:textAllCaps="false"
         android:textSize="20sp"
         app:layout_constraintEnd_toEndOf="parent"
@@ -118,7 +127,6 @@
         app:layout_constraintTop_toBottomOf="@+id/btON" />
 
 
-    <!-- Wyśrodkowanie wertykalne -->
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/verticalCenter"
@@ -127,7 +135,6 @@
         android:orientation="vertical"
         app:layout_constraintGuide_percent="0.5" />
 
-    <!-- Poziome wyśrodkowanie -->
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/horizontalCenter"
         android:layout_width="wrap_content"

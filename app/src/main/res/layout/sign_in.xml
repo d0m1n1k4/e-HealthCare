@@ -18,12 +18,13 @@
         android:textSize="45dp"
         android:layout_marginBottom="30dp"
         android:textStyle="bold"
-        android:typeface="monospace" />
+        android:typeface="sans" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Sign In"
+        android:typeface="sans"
         android:textColor="#ffffff"
         android:textSize="30dp"
         android:textStyle="bold" />
@@ -41,6 +42,7 @@
             android:paddingVertical="10dp"
             android:textColor="#000000"
             android:textStyle="bold"
+            android:typeface="sans"
             android:inputType="textEmailAddress"
             android:paddingLeft="45dp"
             android:background="@drawable/rectangle_field" />
@@ -66,6 +68,7 @@
             android:hint="Enter your password..."
             android:paddingVertical="10dp"
             android:textColor="#000000"
+            android:typeface="sans"
             android:textStyle="bold"
             android:inputType="textPassword"
             android:paddingLeft="45dp"
@@ -85,6 +88,7 @@
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:text="Sign in"
+        android:typeface="sans"
         android:textColor="#ffffff"
         android:layout_marginTop="20dp"
         android:background="@drawable/rectangle_field"
@@ -102,6 +106,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:typeface="sans"
             android:text="Don't have an account?"
             android:textSize="16dp" />
 
@@ -111,6 +116,7 @@
             android:layout_height="wrap_content"
             android:text="Register"
             android:layout_marginLeft="10dp"
+            android:typeface="sans"
             android:textStyle="bold"
             android:textSize="18dp"
             android:textColor="#ffffff" />
