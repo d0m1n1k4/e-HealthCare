@@ -12,98 +12,127 @@
         android:id="@+id/dashboardTextView"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="28dp"
+        android:gravity="center"
         android:textColor="#4E057E"
         android:textSize="20sp"
-        android:gravity="center"
-        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toTopOf="@+id/btON" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <Button
         android:id="@+id/btON"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
         android:text="Uruchom Bluetooth"
         android:textAllCaps="false"
         android:textSize="20sp"
-        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/dashboardTextView"
-        app:layout_constraintBottom_toTopOf="@+id/manualButton" />
-
-    <Button
-        android:id="@+id/manualButton"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text="Pomiary ręczne"
-        android:textSize="20sp"
-        android:textAllCaps="false"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btON"
-        app:layout_constraintBottom_toTopOf="@+id/bleButton" />
+        app:layout_constraintTop_toBottomOf="@+id/dashboardTextView" />
 
     <Button
         android:id="@+id/bleButton"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
         android:text="Pomiary BLE"
-        android:textSize="20sp"
         android:textAllCaps="false"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/manualButton"
-        app:layout_constraintBottom_toTopOf="@+id/resultGlucoseButton" />
-
-    <Button
-        android:id="@+id/resultGlucoseButton"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text="Analiza wyników glukozy"
         android:textSize="20sp"
-        android:textAllCaps="false"
-        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/bleButton"
-        app:layout_constraintBottom_toTopOf="@+id/resultHeartButton" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/manualButton" />
 
     <Button
         android:id="@+id/resultHeartButton"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
         android:text="Analiza wyników tętna"
-        android:textSize="20sp"
         android:textAllCaps="false"
-        app:layout_constraintStart_toStartOf="parent"
+        android:textSize="20sp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/resultGlucoseButton"/>
-
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/resultGlucoseButton" />
 
     <Button
         android:id="@+id/downloadButton"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
         android:text="Pobierz wyniki"
         android:textAllCaps="false"
         android:textSize="20sp"
-        app:layout_constraintBottom_toTopOf="@+id/logout"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/resultHeartButton"/>
-
+        app:layout_constraintTop_toBottomOf="@+id/resultHeartButton" />
 
     <Button
         android:id="@+id/logout"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
         android:text="Log Out"
         android:textAllCaps="false"
         android:textSize="20sp"
-        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/downloadButton" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/disableBluetoothButton" />
 
+    <Button
+        android:id="@+id/resultGlucoseButton"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:text="Analiza wyników glukozy"
+        android:textAllCaps="false"
+        android:textSize="20sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/bleButton" />
+
+    <Button
+        android:id="@+id/disableBluetoothButton"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Wyłącz Bluetooth"
+        android:textAllCaps="false"
+        android:textSize="20sp"
+        app:layout_constraintBottom_toTopOf="@+id/logout"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/downloadButton"
+        app:layout_constraintVertical_bias="0.5" />
+
+    <Button
+        android:id="@+id/manualButton"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="Pomiary ręczne"
+        android:textAllCaps="false"
+        android:textSize="20sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/btON" />
+
+
+    <!-- Wyśrodkowanie wertykalne -->
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/verticalCenter"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.5" />
+
+    <!-- Poziome wyśrodkowanie -->
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/horizontalCenter"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.5" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
