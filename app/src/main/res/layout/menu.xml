@@ -25,7 +25,7 @@
         android:id="@+id/btON"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="Bluetooth ON"
+        android:text="Uruchom Bluetooth"
         android:textAllCaps="false"
         android:textSize="20sp"
         app:layout_constraintStart_toStartOf="parent"

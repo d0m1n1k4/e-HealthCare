@@ -16,11 +16,11 @@ public class Menu extends Activity {
     private Button logout, btON, manualButton, bleButton, resultGlucoseButton, resultHeartButton, downloadButton;
 
     private TextView dashboardTextView;
-    private BluetoothAdapter myBluetoothAdapter; //Deklaracja zmiennej myBluetoothAdapter do zarządzania funkcjami Bluetooth
+    private BluetoothAdapter myBluetoothAdapter; // Deklaracja zmiennej myBluetoothAdapter do zarządzania funkcjami Bluetooth
+    private boolean isBluetoothEnabled = false;
 
-    Intent btEnablingIntent; //Deklaracja zmiennej btEnablingIntent przechowującej intencję do włączenia Bluetooth.
-    int requestCodeForEnable; //Deklaracja zmiennej requestCodeForEnable przechowującej kod żądania aktywacji Bluetooth
-
+    Intent btEnablingIntent; // Deklaracja zmiennej btEnablingIntent przechowującej intencję do włączenia Bluetooth.
+    int requestCodeForEnable; // Deklaracja zmiennej requestCodeForEnable przechowującej kod żądania aktywacji Bluetooth
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,10 +36,16 @@ public class Menu extends Activity {
         String welcomeText = "Zalogowany użytkownik: " + username;
         dashboardTextView.setText(welcomeText);
 
-        btON = (Button) findViewById(R.id.btON);
+        btON = findViewById(R.id.btON);
         myBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         btEnablingIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
         requestCodeForEnable = 1;
+
+        // Sprawdzanie stanu włączenia Bluetooth
+        if (myBluetoothAdapter != null && myBluetoothAdapter.isEnabled()) {
+            isBluetoothEnabled = true;
+            updateBluetoothButtonState();
+        }
 
         bluetoothONMethod();
 
@@ -79,7 +85,6 @@ public class Menu extends Activity {
             }
         });
 
-
         downloadButton = findViewById(R.id.downloadButton);
         downloadButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -88,8 +93,6 @@ public class Menu extends Activity {
                 startActivity(intent);
             }
         });
-
-
 
         logout = findViewById(R.id.logout);
         logout.setOnClickListener(new View.OnClickListener() {
@@ -100,40 +103,43 @@ public class Menu extends Activity {
                 startActivity(intent);
                 finish();
             }
-
-
         });
     }
 
-
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data){
-        if(requestCode==requestCodeForEnable)
-        {
-            if(resultCode==RESULT_OK)
-            {
-                Toast.makeText(getApplicationContext(), "Bluetooth is Enable",Toast.LENGTH_LONG).show();
-            }else if (resultCode==RESULT_CANCELED)
-            {
-                Toast.makeText(getApplicationContext(), "Bluetooth Enabling Cancelled", Toast.LENGTH_LONG).show();
+
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == requestCodeForEnable) {
+            if (resultCode == RESULT_OK) {
+                isBluetoothEnabled = true;
+                updateBluetoothButtonState();
+                Toast.makeText(getApplicationContext(), "Bluetooth jest włączony", Toast.LENGTH_LONG).show();
+            } else if (resultCode == RESULT_CANCELED) {
+                Toast.makeText(getApplicationContext(), "Włączanie Bluetooth zostało anulowane", Toast.LENGTH_LONG).show();
             }
         }
     }
+
     private void bluetoothONMethod() {
         btON.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(myBluetoothAdapter==null)
-                {
-                    Toast.makeText(getApplicationContext(), "Bluetooth is not supported on this Device", Toast.LENGTH_LONG).show();
-                }else {
-                    if(!myBluetoothAdapter.isEnabled())
-                    {
-                        startActivityForResult(btEnablingIntent,requestCodeForEnable);
-
+                if (isBluetoothEnabled) {
+                    // Jeżeli Bluetooth jest już włączony, wyświetl komunikat
+                    Toast.makeText(getApplicationContext(), "Bluetooth jest już włączony", Toast.LENGTH_LONG).show();
+                } else {
+                    if (myBluetoothAdapter != null && !myBluetoothAdapter.isEnabled()) {
+                        startActivityForResult(btEnablingIntent, requestCodeForEnable);
                     }
                 }
             }
         });
+    }
+
+    private void updateBluetoothButtonState() {
+        if (isBluetoothEnabled) {
+            btON.setText("Bluetooth jest już włączony");
+            btON.setEnabled(false);
+        }
     }
 }

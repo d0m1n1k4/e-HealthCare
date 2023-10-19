@@ -59,6 +59,8 @@ public class DownloadResults extends Activity {
     private MeasurementAdapter adapter;
 
     private Button driveButton;
+
+    private boolean isFileSaved = false;
     private GoogleSignInClient googleSignInClient;
     private static final int REQUEST_CODE_SIGN_IN = 1;
     private static final String ANDROID_CLIENT_ID = "281646499375-lkjp0h2ubb2egfr1q2mnmqd0qv9n8bel.apps.googleusercontent.com";
@@ -113,9 +115,14 @@ public class DownloadResults extends Activity {
         driveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                signInToGoogleDrive();
+                if (!isFileSaved) { // Sprawdź, czy plik nie został już zapisany
+                    signInToGoogleDrive();
+                } else {
+                    Toast.makeText(DownloadResults.this, "Plik z wynikami sesji " + selectedSessionId + " został już zapisany w Google Drive.", Toast.LENGTH_SHORT).show();
+                }
             }
         });
+
 
         Button backButton = findViewById(R.id.downloadResultsBackButton);
         backButton.setOnClickListener(new View.OnClickListener() {
@@ -198,7 +205,8 @@ public class DownloadResults extends Activity {
                 File file = createJsonFile(driveService, jsonFileName, jsonData);
 
                 handler.post(() -> {
-                    Toast.makeText(DownloadResults.this, "Plik JSON został zapisany w Google Drive:" + jsonFileName, Toast.LENGTH_SHORT).show();
+                    isFileSaved = true;
+                    Toast.makeText(DownloadResults.this, "Plik JSON został zapisany w Google Drive: " + jsonFileName, Toast.LENGTH_SHORT).show();
                 });
             } catch (IOException e) {
                 e.printStackTrace();
