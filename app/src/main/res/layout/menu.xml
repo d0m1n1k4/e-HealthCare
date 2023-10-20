@@ -9,14 +9,16 @@
     tools:context=".Menu">
 
     <TextView
-        android:id="@+id/dashboardTextView"
+        android:id="@+id/eHealthCareLabel"
         android:layout_width="0dp"
-        android:typeface="sans"
         android:layout_height="wrap_content"
-        android:layout_marginTop="28dp"
+        android:layout_marginTop="16dp"
         android:gravity="center"
+        android:text="eHealthCare"
         android:textColor="#4E057E"
-        android:textSize="20sp"
+        android:textSize="28sp"
+        android:textStyle="bold"
+        android:typeface="sans"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -32,7 +34,7 @@
         android:typeface="sans"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/dashboardTextView" />
+        app:layout_constraintTop_toBottomOf="@+id/eHealthCareLabel" />
 
     <Button
         android:id="@+id/bleButton"
@@ -86,15 +88,26 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/disableBluetoothButton" />
 
+    <TextView
+        android:id="@+id/dashboardTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:typeface="sans"
+        android:textSize="16sp"
+        app:layout_constraintTop_toBottomOf="@+id/logout"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
     <Button
         android:id="@+id/resultGlucoseButton"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
+        android:layout_marginTop="8dp"
         android:text="Analiza wyników glukozy"
-        android:typeface="sans"
         android:textAllCaps="false"
         android:textSize="20sp"
+        android:typeface="sans"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/bleButton" />
@@ -125,8 +138,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/btON" />
-
-
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/verticalCenter"

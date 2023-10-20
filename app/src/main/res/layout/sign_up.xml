@@ -13,6 +13,16 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="5dp"
+        android:text="eHealthCare"
+        android:textColor="#4E057E"
+        android:textSize="42dp"
+        android:textStyle="bold"
+        android:typeface="sans" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:text="Sign Up"
         android:typeface="sans"
         android:textColor="#ffffff"
@@ -104,11 +114,11 @@
     <Button
         android:id="@+id/register"
         android:layout_width="match_parent"
-        android:layout_height="60dp"
+        android:layout_height="50dp"
         android:text="Sign Up"
         android:typeface="sans"
         android:textColor="#ffffff"
-        android:layout_marginTop="30dp"
+        android:layout_marginTop="20dp"
         android:background="@drawable/rectangle_field"
         android:textSize="20dp"
         android:textAllCaps="false"

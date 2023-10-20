@@ -1,7 +1,10 @@
 <resources>
     <string name="app_name">Auth</string>
     <string name="measurement_title">Pomiary ręczne</string>
-    <string name="pomiary_r_czne">Pomiary ręczne</string>
-    <string name="pomiary_ble">Pomiary BLE</string>
+    <string name="manual_measure">Pomiary ręczne</string>
+    <string name="ble_measure">Pomiary BLE</string>
+    <string name="heart_analysis">Analiza wyników tętna</string>
+    <string name="glucose_analysis">Analiza wyników glukozy</string>
+    <string name="download_results">Pobieranie wyników</string>
 	<string name="label_choose_session">Wybierz numer zapisanej sesji pomiarowej:</string>
 </resources>
