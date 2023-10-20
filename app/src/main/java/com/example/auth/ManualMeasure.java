@@ -135,7 +135,7 @@ public class ManualMeasure extends Activity {
 
         if (user != null) {
             String userId = user.getUid();
-            selectedDate = generateMeasurementId();
+
             DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference();
             DatabaseReference userReference = databaseReference.child("users").child(userId);
             DatabaseReference measurementsReference = userReference.child("measurements");
@@ -144,6 +144,9 @@ public class ManualMeasure extends Activity {
 
             DatabaseReference glukozaReference = newMeasurementReference.child("glukoza");
             DatabaseReference tetnoReference = newMeasurementReference.child("tetno");
+
+            newMeasurementReference.child("date").setValue(selectedDate);
+
 
             for (int i = 0; i < measurements.size(); i++) {
                 Measurement measurement = measurements.get(i);
@@ -190,7 +193,7 @@ public class ManualMeasure extends Activity {
                 Toast.makeText(getApplicationContext(), "Wprowadź wartości z zakresu 20-450", Toast.LENGTH_SHORT).show();
             } else {
                 // Dodawanie daty do bazy danych
-                newMeasurementReference.child("date").setValue(selectedDate);
+                //newMeasurementReference.child("data").setValue(selectedDate);
 
                 String sessionNumber = generateMeasurementId();
                 final String toastMessage = "Dane pomiarowe zostały zapisane\nNumer sesji: " + sessionNumber;

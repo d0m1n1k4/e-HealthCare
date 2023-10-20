@@ -8,7 +8,6 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.LinearLayout;
 import android.widget.Spinner;
 
 import androidx.annotation.NonNull;
@@ -47,8 +46,6 @@ public class HeartAnalysis extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.heart_analysis);
-
-        LinearLayout buttonsLayout = findViewById(R.id.buttonsLayout);
 
         sessionSpinner = findViewById(R.id.sessionSpinner);
         heartRateChart = findViewById(R.id.heartRateChart);

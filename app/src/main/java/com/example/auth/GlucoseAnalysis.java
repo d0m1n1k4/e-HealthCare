@@ -10,8 +10,8 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.LinearLayout;
 import android.widget.Spinner;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 
@@ -45,15 +45,16 @@ public class GlucoseAnalysis extends Activity {
     private LineDataSet glucoseDataSet;
     private XAxis xAxis;
 
+    private TextView dateTextView;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.glucose_analysis);
 
-        LinearLayout buttonsLayout = findViewById(R.id.buttonsLayout);
 
         sessionSpinner = findViewById(R.id.sessionSpinner);
         glucoseChart = findViewById(R.id.glucoseChart);
+        dateTextView = findViewById(R.id.dateTextView);
 
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         if (user != null) {
@@ -79,6 +80,21 @@ public class GlucoseAnalysis extends Activity {
             public void onNothingSelected(AdapterView<?> parentView) {
             }
         });
+
+        sessionSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
+                String selectedSessionId = sessionIds.get(position);
+                searchSessionInFirebase(selectedSessionId);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parentView) {
+            }
+        });
+
+
+
 
         Button resultAnalysisBackButton = findViewById(R.id.resultAnalysisBackButton);
         resultAnalysisBackButton.setOnClickListener(new View.OnClickListener() {
@@ -131,6 +147,11 @@ public class GlucoseAnalysis extends Activity {
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                     if (dataSnapshot.exists()) {
                         List<Entry> glucoseEntries = getGlucoseDataFromFirebase(dataSnapshot);
+
+                        String selectedDate = dataSnapshot.child("date").getValue(String.class);
+
+                        dateTextView.setText("Data wykonania pomiaru: " + selectedDate);
+
                         updateGlucoseChart(glucoseEntries);
                     }
                 }
@@ -141,6 +162,7 @@ public class GlucoseAnalysis extends Activity {
             });
         }
     }
+
 
     private void initChart(LineChart chart, String chartTitle) {
         // Ustawianie parametrów osi Y
