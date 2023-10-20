@@ -28,6 +28,7 @@
         android:layout_height="wrap_content"
         android:typeface="sans"
         android:text="Wybierz numer ID sesji pomiarowej  do pobrania na Twój prywatny Google Drive w postaci pliku JSON:"
+        android:textColor="#000000"
         android:gravity="center"
         android:textSize="18sp"
         android:layout_marginTop="16dp"
@@ -46,6 +47,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Pobieranie"
+        android:textColor="#000000"
         android:typeface="sans"
         android:textSize="20sp"
         android:layout_marginTop="16dp"
@@ -57,10 +59,13 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:typeface="sans"
-        android:text="DRIVE"
+        android:text="Pobierz"
         android:layout_marginTop="16dp"
         android:layout_below="@+id/downloadLabelTextView"
-        android:layout_centerHorizontal="true" />
+        android:layout_centerHorizontal="true"
+        android:textAllCaps="false"
+        android:textColor="#4E057E"
+        android:background="@drawable/rectangle_field3"/>
 
     <Button
         android:id="@+id/downloadResultsBackButton"
@@ -68,7 +73,10 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="470dp"
         android:layout_marginBottom="16dp"
-        android:text="POWRÓT"
+        android:text="Powrót"
         android:typeface="sans"
-        app:layout_constraintBottom_toBottomOf="parent" />
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:textAllCaps="false"
+        android:textColor="#4E057E"
+        android:background="@drawable/rectangle_field3"/>
 </RelativeLayout>

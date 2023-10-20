@@ -91,7 +91,7 @@
         android:typeface="sans"
         android:textColor="#ffffff"
         android:layout_marginTop="20dp"
-        android:background="@drawable/rectangle_field"
+        android:background="@drawable/rectangle_field2"
         android:textSize="20dp"
         android:textAllCaps="false" />
 

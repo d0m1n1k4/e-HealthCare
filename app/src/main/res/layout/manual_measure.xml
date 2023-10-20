@@ -9,7 +9,7 @@
 
     <TextView
         android:id="@+id/headerTextView"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/manual_measure"
         android:textColor="#4E057E"
@@ -22,17 +22,22 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintVertical_bias="0.0"/>
+        app:layout_constraintVertical_bias="0.0" />
 
     <Button
         android:id="@+id/selectDateButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="25dp"
+        android:text="Data pomiaru"
+        android:textAllCaps="false"
+        android:textColor="#4E057E"
+        android:background="@drawable/rectangle_field3"
+        android:textSize="12sp"
         android:typeface="sans"
-        android:text="DATA POMIARU"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/headerTextView"
-        android:layout_marginTop="8dp" />
+        app:layout_constraintTop_toBottomOf="@+id/headerTextView" />
 
     <TextView
         android:id="@+id/selectedDateTextView"
@@ -57,6 +62,18 @@
         app:layout_constraintVertical_bias="0.0"
         tools:layout_editor_absoluteX="0dp" />
 
+
+    <ImageView
+        android:id="@+id/iconImageView"
+        android:layout_width="42dp"
+        android:layout_height="38dp"
+        android:src="@drawable/manual_measure"
+        app:layout_constraintTop_toTopOf="@+id/headerTextView"
+        app:layout_constraintBottom_toBottomOf="@+id/headerTextView"
+        app:layout_constraintStart_toStartOf="parent"
+        android:gravity="center"
+        android:layout_marginStart="55dp" />
+
     <LinearLayout
         android:id="@+id/buttonsLayout"
         android:layout_width="0dp"
@@ -77,7 +94,10 @@
             android:layout_marginEnd="8dp"
             android:layout_weight="1"
             android:typeface="sans"
-            android:text="POWRÓT"
+            android:text="Powrót"
+            android:textColor="#4E057E"
+            android:background="@drawable/rectangle_field3"
+            android:textAllCaps="false"
             android:textSize="12sp"
             app:layout_constraintEnd_toStartOf="@+id/saveButton" />
 
@@ -88,7 +108,10 @@
             android:typeface="sans"
             android:layout_marginEnd="8dp"
             android:layout_weight="1"
-            android:text="ZAPISZ"
+            android:text="Zapisz"
+            android:textAllCaps="false"
+            android:textColor="#4E057E"
+            android:background="@drawable/rectangle_field3"
             android:textSize="12sp"
             app:layout_constraintEnd_toStartOf="@+id/clearButton" />
 
@@ -98,7 +121,10 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:typeface="sans"
-            android:text="WYCZYŚĆ"
+            android:text="Wyczyść"
+            android:textAllCaps="false"
+            android:textColor="#4E057E"
+            android:background="@drawable/rectangle_field3"
             android:textSize="12sp"
             app:layout_constraintEnd_toEndOf="parent" />
 

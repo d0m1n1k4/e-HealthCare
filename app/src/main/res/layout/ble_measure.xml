@@ -49,9 +49,13 @@
             android:layout_height="wrap_content"
             android:typeface="sans"
             android:layout_weight="1"
-            android:text="POWRÓT"
+            android:text="Powrót"
             android:textSize="12sp"
-            android:layout_marginEnd="8dp" />
+            android:layout_marginEnd="8dp"
+            android:textAllCaps="false"
+            android:textColor="#4E057E"
+            android:background="@drawable/rectangle_field3"/>
+
 
     </LinearLayout>
 

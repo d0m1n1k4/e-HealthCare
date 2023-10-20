@@ -27,14 +27,18 @@
         android:id="@+id/btON"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
+        android:layout_marginTop="4dp"
         android:text="Uruchom Bluetooth"
-        android:textAllCaps="false"
         android:textSize="20sp"
         android:typeface="sans"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/eHealthCareLabel" />
+        app:layout_constraintTop_toBottomOf="@+id/eHealthCareLabel"
+        android:textAllCaps="false"
+        android:textColor="#4E057E"
+        android:background="@drawable/rectangle_field3"
+        app:layout_constraintVertical_bias="0.5"/>
+
 
     <Button
         android:id="@+id/bleButton"
@@ -47,7 +51,10 @@
         android:textSize="20sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/manualButton" />
+        app:layout_constraintTop_toBottomOf="@+id/manualButton"
+        android:textColor="#4E057E"
+        android:background="@drawable/rectangle_field3"
+        app:layout_constraintVertical_bias="0.5"/>
 
     <Button
         android:id="@+id/resultHeartButton"
@@ -60,7 +67,10 @@
         android:textSize="20sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/resultGlucoseButton" />
+        app:layout_constraintTop_toBottomOf="@+id/resultGlucoseButton"
+        android:textColor="#4E057E"
+        android:background="@drawable/rectangle_field3"
+        app:layout_constraintVertical_bias="0.5"/>
 
     <Button
         android:id="@+id/downloadButton"
@@ -73,26 +83,33 @@
         android:textSize="20sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/resultHeartButton" />
+        app:layout_constraintTop_toBottomOf="@+id/resultHeartButton"
+        android:textColor="#4E057E"
+        android:background="@drawable/rectangle_field3"
+        app:layout_constraintVertical_bias="0.5"/>
 
     <Button
         android:id="@+id/logout"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="4dp"
         android:text="Log Out"
         android:typeface="sans"
         android:textAllCaps="false"
         android:textSize="20sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/disableBluetoothButton" />
+        app:layout_constraintTop_toBottomOf="@+id/disableBluetoothButton"
+        android:textColor="#4E057E"
+        android:background="@drawable/rectangle_field3"
+        app:layout_constraintVertical_bias="0.5"/>
+
 
     <TextView
         android:id="@+id/dashboardTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="4dp"
         android:typeface="sans"
         android:textSize="16sp"
         app:layout_constraintTop_toBottomOf="@+id/logout"
@@ -103,21 +120,27 @@
         android:id="@+id/resultGlucoseButton"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="4dp"
         android:text="Analiza wyników glukozy"
         android:textAllCaps="false"
         android:textSize="20sp"
         android:typeface="sans"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/bleButton" />
+        app:layout_constraintTop_toBottomOf="@+id/bleButton"
+        android:textColor="#4E057E"
+        android:background="@drawable/rectangle_field3"
+        app:layout_constraintVertical_bias="0.5"/>
 
     <Button
         android:id="@+id/disableBluetoothButton"
         android:layout_width="0dp"
+        android:layout_marginTop="4dp"
         android:layout_height="wrap_content"
+        android:background="@drawable/rectangle_field3"
         android:text="Wyłącz Bluetooth"
         android:textAllCaps="false"
+        android:textColor="#4E057E"
         android:textSize="20sp"
         android:typeface="sans"
         app:layout_constraintBottom_toTopOf="@+id/logout"
@@ -137,7 +160,9 @@
         android:textSize="20sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btON" />
+        app:layout_constraintTop_toBottomOf="@+id/btON"
+        android:textColor="#4E057E"
+        android:background="@drawable/rectangle_field3"/>
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/verticalCenter"
