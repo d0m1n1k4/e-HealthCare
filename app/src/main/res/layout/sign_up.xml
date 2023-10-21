@@ -78,10 +78,10 @@
         <ImageView
             android:layout_width="37dp"
             android:layout_height="50dp"
-            android:layout_marginLeft="10dp"
-            android:background="@drawable/password"
             android:layout_alignParentLeft="true"
-            android:layout_centerInParent="true"/>
+            android:layout_centerInParent="true"
+            android:layout_marginLeft="10dp"
+            android:background="@drawable/password" />
     </RelativeLayout>
 
     <RelativeLayout
@@ -105,10 +105,10 @@
         <ImageView
             android:layout_width="37dp"
             android:layout_height="45dp"
-            android:layout_marginLeft="10dp"
-            android:background="@drawable/lock"
             android:layout_alignParentLeft="true"
-            android:layout_centerInParent="true"/>
+            android:layout_centerInParent="true"
+            android:layout_marginLeft="3dp"
+            android:background="@drawable/lock" />
     </RelativeLayout>
 
     <Button

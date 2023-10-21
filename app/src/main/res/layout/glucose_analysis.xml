@@ -15,13 +15,24 @@
         android:gravity="center"
         android:text="@string/glucose_analysis"
         android:textColor="#4E057E"
-        android:textSize="24sp"
+        android:textSize="22sp"
         android:textStyle="bold"
         android:typeface="sans"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageView
+        android:id="@+id/iconImageView"
+        android:layout_width="40dp"
+        android:layout_height="35dp"
+        android:layout_marginStart="20dp"
+        android:gravity="center"
+        android:src="@drawable/glucose"
+        app:layout_constraintBottom_toBottomOf="@+id/headerTextView"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/headerTextView" />
 
     <TextView
         android:id="@+id/sessionLabelTextView"

@@ -8,6 +8,7 @@
     android:padding="16dp"
     tools:context=".Menu">
 
+
     <TextView
         android:id="@+id/eHealthCareLabel"
         android:layout_width="0dp"
@@ -22,6 +23,17 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageView
+        android:id="@+id/iconImageView"
+        android:layout_width="42dp"
+        android:layout_height="38dp"
+        android:layout_marginStart="51dp"
+        android:gravity="center"
+        android:src="@drawable/health"
+        app:layout_constraintBottom_toBottomOf="@+id/eHealthCareLabel"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/eHealthCareLabel" />
 
     <Button
         android:id="@+id/btON"
