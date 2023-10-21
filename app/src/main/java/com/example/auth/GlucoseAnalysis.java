@@ -1,7 +1,5 @@
 package com.example.auth;
 
-
-import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -14,6 +12,8 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.fragment.app.FragmentActivity;
+import androidx.fragment.app.FragmentManager;
 
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.components.LimitLine;
@@ -35,7 +35,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class GlucoseAnalysis extends Activity {
+public class GlucoseAnalysis extends FragmentActivity {
 
     private Spinner sessionSpinner;
     private String userId;
@@ -46,11 +46,11 @@ public class GlucoseAnalysis extends Activity {
     private XAxis xAxis;
 
     private TextView dateTextView;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.glucose_analysis);
-
 
         sessionSpinner = findViewById(R.id.sessionSpinner);
         glucoseChart = findViewById(R.id.glucoseChart);
@@ -81,27 +81,22 @@ public class GlucoseAnalysis extends Activity {
             }
         });
 
-        sessionSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
-                String selectedSessionId = sessionIds.get(position);
-                searchSessionInFirebase(selectedSessionId);
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parentView) {
-            }
-        });
-
-
-
-
         Button resultAnalysisBackButton = findViewById(R.id.resultAnalysisBackButton);
         resultAnalysisBackButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(GlucoseAnalysis.this, Menu.class);
                 startActivity(intent);
+            }
+        });
+
+        Button infoButton = findViewById(R.id.infoButton);
+        infoButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                GlucoseAnalysisInfo infoDialogFragment = new GlucoseAnalysisInfo();
+                FragmentManager fragmentManager = getSupportFragmentManager();
+                infoDialogFragment.show(fragmentManager, "info_dialog");
             }
         });
 
@@ -163,7 +158,6 @@ public class GlucoseAnalysis extends Activity {
         }
     }
 
-
     private void initChart(LineChart chart, String chartTitle) {
         // Ustawianie parametrów osi Y
         YAxis leftAxis = chart.getAxisLeft();
@@ -201,9 +195,8 @@ public class GlucoseAnalysis extends Activity {
         LimitLine upperLimitLine = new LimitLine(99f, ">99 mg/dl");
         upperLimitLine.setLineColor(Color.RED);
         upperLimitLine.setLabelPosition(LimitLine.LimitLabelPosition.RIGHT_TOP);
-        upperLimitLine.setLineWidth(2f);
+        upperLimitLine.setLineWidth(        2f);
         leftAxis.addLimitLine(upperLimitLine);
-
 
         chart.setExtraBottomOffset(20f);
 
