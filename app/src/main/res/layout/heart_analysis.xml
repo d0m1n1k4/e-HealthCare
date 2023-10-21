@@ -53,29 +53,45 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/sessionLabelTextView" />
 
+    <TextView
+        android:id="@+id/dateTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="Data wykonania pomiaru:"
+        android:textColor="#000000"
+        android:textSize="12sp"
+        android:typeface="sans"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/heartRateChart" />
+
     <com.github.mikephil.charting.charts.LineChart
         android:id="@+id/heartRateChart"
         android:layout_width="0dp"
         android:layout_height="300dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="8dp"
         android:typeface="sans"
-        app:layout_constraintTop_toBottomOf="@+id/sessionSpinner"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintTop_toBottomOf="@+id/sessionSpinner" />
 
     <Button
         android:id="@+id/heartRateAnalysisBackButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:typeface="sans"
+        android:layout_marginTop="32dp"
+        android:background="@drawable/rectangle_field3"
         android:text="Powrót"
-        android:layout_marginTop="16dp"
-        app:layout_constraintTop_toBottomOf="@+id/heartRateChart"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
         android:textAllCaps="false"
         android:textColor="#4E057E"
-        android:background="@drawable/rectangle_field3"/>
+        android:typeface="sans"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/heartRateChart" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

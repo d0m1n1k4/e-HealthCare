@@ -9,6 +9,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Spinner;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 
@@ -40,6 +41,7 @@ public class HeartAnalysis extends Activity {
     private ArrayAdapter<String> sessionAdapter;
     private LineChart heartRateChart;
     private LineDataSet heartRateDataSet;
+    private TextView dateTextView;
     private XAxis xAxis;
 
     @Override
@@ -49,6 +51,7 @@ public class HeartAnalysis extends Activity {
 
         sessionSpinner = findViewById(R.id.sessionSpinner);
         heartRateChart = findViewById(R.id.heartRateChart);
+        dateTextView = findViewById(R.id.dateTextView);
 
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         if (user != null) {
@@ -126,6 +129,11 @@ public class HeartAnalysis extends Activity {
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                     if (dataSnapshot.exists()) {
                         List<Entry> heartRateEntries = getHeartRateDataFromFirebase(dataSnapshot);
+
+                        String selectedDate = dataSnapshot.child("date").getValue(String.class);
+
+                        dateTextView.setText("Data wykonania pomiaru: " + selectedDate);
+
                         updateHeartRateChart(heartRateEntries);
                     }
                 }

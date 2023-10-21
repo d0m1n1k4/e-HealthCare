@@ -176,14 +176,14 @@ public class ManualMeasure extends Activity {
                 String measurementTime = getMeasurementTime(i); // Pobranie godziny pomiaru
                 // Zapisanie wartości glukozy
                 DatabaseReference glukozaValueReference = glukozaReference.child("glukoza" + (i + 1));
-                glukozaValueReference.child("data").setValue(selectedDate);
-                glukozaValueReference.child("time").setValue(measurementTime);
+                glukozaValueReference.child("date").setValue(selectedDate);
+                glukozaValueReference.child("hour").setValue(measurementTime);
                 glukozaValueReference.child("value").setValue(glukozaValue);
 
                 // Zapisanie wartości tetna
                 DatabaseReference tetnoValueReference = tetnoReference.child("tetno" + (i + 1));
-                tetnoValueReference.child("data").setValue(selectedDate);
-                tetnoValueReference.child("time").setValue(measurementTime);
+                tetnoValueReference.child("date").setValue(selectedDate);
+                tetnoValueReference.child("hour").setValue(measurementTime);
                 tetnoValueReference.child("value").setValue(tetnoValue);
             }
 
