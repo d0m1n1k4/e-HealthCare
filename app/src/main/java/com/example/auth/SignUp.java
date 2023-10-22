@@ -45,36 +45,36 @@ public class SignUp extends AppCompatActivity {
         String password1 = passwordEt1.getText().toString();
         String password2 = passwordEt2.getText().toString();
         if (TextUtils.isEmpty(email)) {
-            emailEt.setError("Enter your email");
+            emailEt.setError("Wprowadź adres email");
             return;
         } else if (TextUtils.isEmpty(password1)) {
-            passwordEt1.setError("Enter your password");
+            passwordEt1.setError("Wprowadź hasło");
             return;
         } else if (TextUtils.isEmpty(password2)) {
-            passwordEt2.setError("Confirm your password");
+            passwordEt2.setError("Potwierdź hasło");
             return;
         } else if (!password1.equals(password2)) {
-            passwordEt2.setError("Different password");
+            passwordEt2.setError("Wprowadzone hasła nie są jednakowe");
             return;
         } else if (password1.length() < 4) {
-            passwordEt1.setError("Length should be >4 characters");
+            passwordEt1.setError("Hasło powinno zawierać co najmnniej 5 znaków");
             return;
         } else if (!isValidEmail(email)) {
-            emailEt.setError("Invalid email");
+            emailEt.setError("Niepoprawny format adresu email");
             return;
         }
-        progressDialog.setMessage("Please wait...");
+        progressDialog.setMessage("Proszę czekać...");
         progressDialog.show();
         progressDialog.setCanceledOnTouchOutside(false);
         firebaseAuth.createUserWithEmailAndPassword(email,password1).addOnCompleteListener(this, task -> {
             if(task.isSuccessful()){
-                Toast.makeText(SignUp.this, "Successfully registered", Toast.LENGTH_LONG).show();
+                Toast.makeText(SignUp.this, "Konto zostało pomyślnie utworzone", Toast.LENGTH_LONG).show();
                 Intent intent=new Intent(SignUp.this, Menu.class);
                 startActivity(intent);
                 finish();
             }
             else{
-                Toast.makeText(SignUp.this, "Sign up fail!", Toast.LENGTH_LONG).show();
+                Toast.makeText(SignUp.this, "Rejestracja nie powiodła się", Toast.LENGTH_LONG).show();
             }
             progressDialog.dismiss();
 

@@ -1,31 +1,43 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<ScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
     android:padding="16dp">
 
-    <TextView
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="INFO"
-        android:textSize="20sp"
-        android:textStyle="bold"
-        android:layout_gravity="center"/>
+        android:orientation="vertical">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Informacje o analizie wyników tętna"
-        android:layout_gravity="center"
-        android:layout_marginTop="16dp"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="INFO"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="#4E057E"
+            android:typeface="sans"
+            android:layout_gravity="center" />
 
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Zamknij"
-        android:id="@+id/closeButton"
-        android:layout_gravity="center"
-        android:layout_marginTop="16dp"/>
-</LinearLayout>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/heartrate_details"
+            android:typeface="sans"
+            android:textColor="#000000"
+            android:layout_gravity="center"
+            android:layout_marginTop="16dp"/>
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Zamknij"
+            android:id="@+id/closeButton"
+            android:typeface="sans"
+            android:layout_gravity="center"
+            android:background="@drawable/rectangle_field3"
+            android:textAllCaps="false"
+            android:layout_marginTop="16dp"/>
+    </LinearLayout>
+</ScrollView>

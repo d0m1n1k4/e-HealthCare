@@ -105,7 +105,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="4dp"
-        android:text="Log Out"
+        android:text="Wyloguj się"
         android:typeface="sans"
         android:textAllCaps="false"
         android:textSize="20sp"

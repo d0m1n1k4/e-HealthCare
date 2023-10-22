@@ -62,20 +62,20 @@ public class SignIn extends AppCompatActivity {
         String email = emailEt.getText().toString();
         String password = passwordEt.getText().toString();
         if (TextUtils.isEmpty(email)) {
-            emailEt.setError("Enter your email");
+            emailEt.setError("Wprowadź adres email");
             return;
         } else if (TextUtils.isEmpty(password)) {
-            passwordEt.setError("Enter your password");
+            passwordEt.setError("Wprowadź hasło");
             return;
         }
-        progressDialog.setMessage("Please wait...");
+        progressDialog.setMessage("Proszę czekać...");
         progressDialog.show();
         progressDialog.setCanceledOnTouchOutside(false);
         firebaseAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
                 if (task.isSuccessful()) {
-                    Toast.makeText(SignIn.this, "Successfully registered", Toast.LENGTH_LONG).show();
+                    Toast.makeText(SignIn.this, "Konto zostało pomyślnie utworzone", Toast.LENGTH_LONG).show();
                     // Dodaj informacje o zalogowanym użytkowniku do Firebase Realtime Database
                     addUserToDatabase(firebaseAuth.getCurrentUser().getUid());
 
@@ -83,7 +83,7 @@ public class SignIn extends AppCompatActivity {
                     startActivity(intent);
                     finish();
                 } else {
-                    Toast.makeText(SignIn.this, "Sign In fail!", Toast.LENGTH_LONG).show();
+                    Toast.makeText(SignIn.this, "Logowanie nie powiodło się", Toast.LENGTH_LONG).show();
                 }
                 progressDialog.dismiss();
             }

@@ -192,7 +192,7 @@ public class GlucoseAnalysis extends FragmentActivity {
         lowerLimitLine.setLabelPosition(LimitLine.LimitLabelPosition.RIGHT_TOP);
         leftAxis.addLimitLine(lowerLimitLine);
 
-        LimitLine upperLimitLine = new LimitLine(99f, ">99 mg/dl");
+        LimitLine upperLimitLine = new LimitLine(100f, ">100 mg/dl");
         upperLimitLine.setLineColor(Color.RED);
         upperLimitLine.setLabelPosition(LimitLine.LimitLabelPosition.RIGHT_TOP);
         upperLimitLine.setLineWidth(        2f);
