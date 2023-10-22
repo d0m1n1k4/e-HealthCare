@@ -11,12 +11,12 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 
-public class GlucoseAnalysisInfo extends DialogFragment {
+public class HeartAnalysisInfo extends DialogFragment {
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.glucose_analysis_info, container, false);
+        View view = inflater.inflate(R.layout.heart_analysis_info, container, false);
 
         // Obsługa przycisku "ZAMKNIJ"
         Button closeButton = view.findViewById(R.id.closeButton);

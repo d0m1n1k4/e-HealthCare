@@ -1,6 +1,5 @@
 package com.example.auth;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -12,6 +11,8 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.fragment.app.FragmentActivity;
+import androidx.fragment.app.FragmentManager;
 
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.components.LimitLine;
@@ -33,7 +34,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class HeartAnalysis extends Activity {
+public class HeartAnalysis extends FragmentActivity {
 
     private Spinner sessionSpinner;
     private String userId;
@@ -84,6 +85,16 @@ public class HeartAnalysis extends Activity {
             public void onClick(View v) {
                 Intent intent = new Intent(HeartAnalysis.this, Menu.class);
                 startActivity(intent);
+            }
+        });
+
+        Button infoButton = findViewById(R.id.infoButton);
+        infoButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                HeartAnalysisInfo infoDialogFragment = new HeartAnalysisInfo();
+                FragmentManager fragmentManager = getSupportFragmentManager();
+                infoDialogFragment.show(fragmentManager, "info_dialog");
             }
         });
 
