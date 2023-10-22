@@ -75,7 +75,7 @@ public class SignIn extends AppCompatActivity {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
                 if (task.isSuccessful()) {
-                    Toast.makeText(SignIn.this, "Konto zostało pomyślnie utworzone", Toast.LENGTH_LONG).show();
+                    Toast.makeText(SignIn.this, "Logowanie przebiegło pomyślnie", Toast.LENGTH_LONG).show();
                     // Dodaj informacje o zalogowanym użytkowniku do Firebase Realtime Database
                     addUserToDatabase(firebaseAuth.getCurrentUser().getUid());
 

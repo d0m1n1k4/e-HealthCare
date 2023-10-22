@@ -131,7 +131,7 @@ public class Menu extends Activity {
 
 
     private void bluetoothONMethod() {
-        btON.setEnabled(!isBluetoothEnabled); // Dezaktywuje przycisk, gdy Bluetooth jest już włączony
+        btON.setEnabled(!isBluetoothEnabled);
         btON.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -150,11 +150,12 @@ public class Menu extends Activity {
 
     private void updateBluetoothButtonState() {
         if (isBluetoothEnabled) {
-            btON.setText("Bluetooth jest już włączony");
             btON.setEnabled(false);
         } else {
             btON.setText("Uruchom Bluetooth");
             btON.setEnabled(true);
         }
     }
+
+
 }
