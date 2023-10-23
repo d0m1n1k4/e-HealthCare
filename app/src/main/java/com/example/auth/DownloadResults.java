@@ -37,9 +37,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.nimbusds.jose.shaded.json.JSONObject;
-
-import org.json.JSONArray;
+import com.google.gson.GsonBuilder;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -50,28 +48,32 @@ import java.util.concurrent.Executors;
 
 public class DownloadResults extends Activity {
 
+    public static final String SPINNER_MOCK_ITEM_1 = "-- brak sesji --";
     private Spinner sessionSpinner;
     private String userId;
-    private List<String> sessionIds;
-    private ArrayAdapter<String> sessionAdapter;
+    private List<String> sessionIds = new ArrayList<>();
     private List<Measurement> measurements = new ArrayList<>();
 
-    private MeasurementAdapter adapter;
+    private ArrayAdapter<String> sessionAdapter;
+    private MeasurementAdapter measurementAdapter;
 
     private Button driveButton;
+    private Button backButton;
 
     private boolean isFileSaved = false;
+
     private GoogleSignInClient googleSignInClient;
     private static final int REQUEST_CODE_SIGN_IN = 1;
-    private static final String ANDROID_CLIENT_ID = "281646499375-lkjp0h2ubb2egfr1q2mnmqd0qv9n8bel.apps.googleusercontent.com";
+
     private static final String WEB_CLIENT_ID = "281646499375-q6jbaucmkbdln8bqrfuqrc0idadfi1de.apps.googleusercontent.com";
 
-    private String selectedDate = "";
+    private Measurements selectedMeasurements;
+    private String selectedSpinnerItemValue;
 
-    private String selectedSessionId = "";
     private Executor executor = Executors.newSingleThreadExecutor();
     private Handler handler;
 
+    private static final String TAG = "DownloadResults";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -82,6 +84,7 @@ public class DownloadResults extends Activity {
 
         sessionSpinner = findViewById(R.id.downloadSessionSpinner);
         driveButton = findViewById(R.id.driveButton);
+        backButton = findViewById(R.id.downloadResultsBackButton);
 
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         if (user != null) {
@@ -90,21 +93,20 @@ public class DownloadResults extends Activity {
             userId = null;
         }
 
-        sessionIds = new ArrayList<>();
         sessionAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, sessionIds);
         sessionSpinner.setAdapter(sessionAdapter);
-
-        // Inicjalizacja adaptera
-        adapter = new MeasurementAdapter(measurements);
-
-        loadHeartRateSessionsFromFirebase();
 
         sessionSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
-                selectedSessionId = sessionIds.get(position);
-                String selectedSessionId = sessionIds.get(position);
-                searchHeartRateSessionInFirebase(selectedSessionId);
+                String sessionId = sessionIds.get(position);
+                selectedSpinnerItemValue = sessionId;
+
+                if (sessionId.equals(SPINNER_MOCK_ITEM_1)) {
+                    return;
+                }
+
+                asyncGetMeasurementsForSessionId(sessionId);
             }
 
             @Override
@@ -112,19 +114,26 @@ public class DownloadResults extends Activity {
             }
         });
 
+        asyncLoadMeasurementsToSessionAdapter();
+
+        measurementAdapter = new MeasurementAdapter(measurements);
+
         driveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (!isFileSaved) { // Sprawdź, czy plik nie został już zapisany
+                if (SPINNER_MOCK_ITEM_1.equals(selectedSpinnerItemValue)) {
+                    Toast.makeText(DownloadResults.this, "Wybierz najpierw numer ID sesji do pobrania", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                if (!isFileSaved) {
                     signInToGoogleDrive();
                 } else {
-                    Toast.makeText(DownloadResults.this, "Plik z wynikami sesji " + selectedSessionId + " został już zapisany w Google Drive.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(DownloadResults.this, "Plik z wynikami wybranej sesji został już zapisany w Google Drive.", Toast.LENGTH_SHORT).show();
                 }
             }
         });
 
-
-        Button backButton = findViewById(R.id.downloadResultsBackButton);
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -169,7 +178,7 @@ public class DownloadResults extends Activity {
             GoogleSignInAccount account = completedTask.getResult(ApiException.class);
 
             if (account != null) {
-                handleDriveSignInSuccess(account);
+                onGoogleDriveSignInSuccess(account);
             } else {
                 Log.e("GoogleDriveAuth", "GoogleSignInAccount is null.");
                 Toast.makeText(getApplicationContext(), "Błąd autoryzacji Google Drive.", Toast.LENGTH_SHORT).show();
@@ -187,20 +196,30 @@ public class DownloadResults extends Activity {
                 .build();
     }
 
-    private void handleDriveSignInSuccess(GoogleSignInAccount account) {
+    private void onGoogleDriveSignInSuccess(GoogleSignInAccount account) {
         Toast.makeText(getApplicationContext(), "Zalogowano do Google Drive.", Toast.LENGTH_SHORT).show();
 
         GoogleAccountCredential credential = GoogleAccountCredential.usingOAuth2(
-                this, Collections.singleton("https://www.googleapis.com/auth/drive.file"));
+                this,
+                Collections.singleton("https://www.googleapis.com/auth/drive.file")
+        );
+
         credential.setSelectedAccount(account.getAccount());
 
         Drive driveService = getDriveService(credential);
 
-        // Tworzenie pliku JSON
-        String jsonData = createJsonData();
-        String jsonFileName = selectedSessionId + ".json";
+        // Sprawdzenie, czy dane są gotowe do pobrania
+        if (selectedMeasurements == null) {
+            Toast.makeText(this, "Dane pomiarowe niedostępne", Toast.LENGTH_SHORT).show();
+            return;
+        }
 
-        executor.execute(() -> {
+        // Tworzenie pliku JSON
+        String jsonData = new GsonBuilder().setPrettyPrinting().create().toJson(selectedMeasurements);
+        String jsonFileName = selectedMeasurements.sessionId + ".json";
+
+        executor.execute(()
+                -> {
             try {
                 File file = createJsonFile(driveService, jsonFileName, jsonData);
 
@@ -212,42 +231,6 @@ public class DownloadResults extends Activity {
                 e.printStackTrace();
             }
         });
-    }
-
-    private String createJsonData() {
-        JSONObject sessionData = new JSONObject();
-        sessionData.put("id", selectedSessionId);
-
-        JSONArray glukozaArray = new JSONArray();
-        JSONArray tetnoArray = new JSONArray();
-        List<Measurement> measurements = adapter.getMeasurements();
-
-        for (int i = 0; i < measurements.size(); i++) {
-            Measurement measurement = measurements.get(i);
-            String tetnoValue = measurement.getTetnoValue();
-            String glukozaValue = measurement.getGlukozaValue();
-            String measurementTime = getMeasurementTime(i);
-
-            if (!tetnoValue.isEmpty() && !glukozaValue.isEmpty()) {
-                JSONObject glukozaItem = new JSONObject();
-                glukozaItem.put("date", selectedDate);
-                glukozaItem.put("time", measurementTime);
-                glukozaItem.put("value", Integer.parseInt(glukozaValue));
-
-                JSONObject tetnoItem = new JSONObject();
-                tetnoItem.put("date", selectedDate);
-                tetnoItem.put("time", measurementTime);
-                tetnoItem.put("value", Integer.parseInt(tetnoValue));
-
-                glukozaArray.put(glukozaItem);
-                tetnoArray.put(tetnoItem);
-            }
-        }
-
-        sessionData.put("glukoza", glukozaArray);
-        sessionData.put("tetno", tetnoArray);
-
-        return sessionData.toString();
     }
 
     private File createJsonFile(Drive driveService, String fileName, String fileContent) throws IOException {
@@ -264,20 +247,16 @@ public class DownloadResults extends Activity {
         return file;
     }
 
-    private String generateMeasurementId() {
-        return selectedSessionId;
-    }
-
     private String getMeasurementTime(int index) {
         // Implementacja pobierania czasu pomiaru na podstawie indeksu
         return "CZAS POMIARU";
     }
 
-    private void loadHeartRateSessionsFromFirebase() {
+    private void asyncLoadMeasurementsToSessionAdapter() {
         if (userId != null) {
             DatabaseReference rootReference = FirebaseDatabase.getInstance().getReference();
             DatabaseReference heartRateReference = rootReference.child("users").child(userId).child("measurements");
-            ValueEventListener valueEventListener = heartRateReference.addValueEventListener(new ValueEventListener() {
+            heartRateReference.addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
                     sessionIds.clear();
@@ -287,7 +266,12 @@ public class DownloadResults extends Activity {
                         sessionIds.add(sessionId);
                     }
 
-                    Collections.reverse(sessionIds);
+                    if (sessionIds.size() == 0) {
+                        sessionIds.add(SPINNER_MOCK_ITEM_1);
+                    } else {
+                        Collections.reverse(sessionIds);
+                    }
+
                     sessionAdapter.notifyDataSetChanged();
                 }
 
@@ -299,16 +283,22 @@ public class DownloadResults extends Activity {
         }
     }
 
-    private void searchHeartRateSessionInFirebase(String sessionId) {
+    private void asyncGetMeasurementsForSessionId(String sessionId) {
         if (userId != null) {
-            DatabaseReference sessionsReference = FirebaseDatabase.getInstance().getReference("users").child(userId).child("sessions");
+            // Usuwanie starych sesji pomiarowych przed pobraniem następnej
+            selectedMeasurements = null;
 
+            DatabaseReference sessionsReference = FirebaseDatabase.getInstance().getReference("users").child(userId).child("measurements");
             DatabaseReference selectedSessionReference = sessionsReference.child(sessionId);
 
             selectedSessionReference.addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    Measurements measurements = dataSnapshot.getValue(Measurements.class);
+                    measurements.setSessionId(sessionId);
 
+                    // Przechowanie nowej sesji pomiarowej
+                    selectedMeasurements = measurements;
                 }
 
                 @Override
