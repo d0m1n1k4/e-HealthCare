@@ -1,0 +1,625 @@
+diff --git a/app/src/main/java/com/example/auth/DownloadResults.java b/app/src/main/java/com/example/auth/DownloadResults.java
+index b7c9c52..f5b16d5 100644
+--- a/app/src/main/java/com/example/auth/DownloadResults.java
++++ b/app/src/main/java/com/example/auth/DownloadResults.java
+@@ -16,6 +16,7 @@ import android.widget.Toast;
+ import androidx.annotation.NonNull;
+ import androidx.annotation.Nullable;
+ 
++import com.example.auth.pojo.measurements.Measurements;
+ import com.google.android.gms.auth.api.signin.GoogleSignIn;
+ import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+ import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+@@ -37,9 +38,7 @@ import com.google.firebase.database.DatabaseError;
+ import com.google.firebase.database.DatabaseReference;
+ import com.google.firebase.database.FirebaseDatabase;
+ import com.google.firebase.database.ValueEventListener;
+-import com.nimbusds.jose.shaded.json.JSONObject;
+-
+-import org.json.JSONArray;
++import com.google.gson.GsonBuilder;
+ 
+ import java.io.IOException;
+ import java.util.ArrayList;
+@@ -50,28 +49,32 @@ import java.util.concurrent.Executors;
+ 
+ public class DownloadResults extends Activity {
+ 
++    public static final String SPINNER_MOCK_ITEM_1 = "-- brak sesji --";
+     private Spinner sessionSpinner;
+     private String userId;
+-    private List<String> sessionIds;
+-    private ArrayAdapter<String> sessionAdapter;
++    private List<String> sessionIds = new ArrayList<>();
+     private List<Measurement> measurements = new ArrayList<>();
+ 
+-    private MeasurementAdapter adapter;
++    private ArrayAdapter<String> sessionAdapter;
++    private MeasurementAdapter measurementAdapter;
+ 
+     private Button driveButton;
++    private Button backButton;
+ 
+     private boolean isFileSaved = false;
++
+     private GoogleSignInClient googleSignInClient;
+     private static final int REQUEST_CODE_SIGN_IN = 1;
+-    private static final String ANDROID_CLIENT_ID = "281646499375-lkjp0h2ubb2egfr1q2mnmqd0qv9n8bel.apps.googleusercontent.com";
+-    private static final String WEB_CLIENT_ID = "281646499375-q6jbaucmkbdln8bqrfuqrc0idadfi1de.apps.googleusercontent.com";
+ 
+-    private String selectedDate = "";
++    private static final String WEB_CLIENT_ID = "605392728845-vlbvp8e8ferbh025mbefvkc2c4edtcdg.apps.googleusercontent.com";
++
++    private Measurements selectedMeasurements;
++    private String selectedSpinnerItemValue;
+ 
+-    private String selectedSessionId = "";
+     private Executor executor = Executors.newSingleThreadExecutor();
+     private Handler handler;
+ 
++    private static final String TAG = "DownloadResults";
+ 
+     @Override
+     protected void onCreate(Bundle savedInstanceState) {
+@@ -82,6 +85,7 @@ public class DownloadResults extends Activity {
+ 
+         sessionSpinner = findViewById(R.id.downloadSessionSpinner);
+         driveButton = findViewById(R.id.driveButton);
++        backButton = findViewById(R.id.downloadResultsBackButton);
+ 
+         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+         if (user != null) {
+@@ -90,41 +94,49 @@ public class DownloadResults extends Activity {
+             userId = null;
+         }
+ 
+-        sessionIds = new ArrayList<>();
+         sessionAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, sessionIds);
+         sessionSpinner.setAdapter(sessionAdapter);
+ 
+-        // Inicjalizacja adaptera
+-        adapter = new MeasurementAdapter(measurements);
+-
+-        loadHeartRateSessionsFromFirebase();
+-
+         sessionSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+             @Override
+             public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
+-                selectedSessionId = sessionIds.get(position);
+-                String selectedSessionId = sessionIds.get(position);
+-                searchHeartRateSessionInFirebase(selectedSessionId);
++                String sessionId = sessionIds.get(position);
++                selectedSpinnerItemValue = sessionId;
++
++                if (sessionId.equals(SPINNER_MOCK_ITEM_1)) {
++                    return;
++                }
++
++                asyncGetMeasurementsForSessionId(sessionId);
+             }
+ 
+             @Override
+             public void onNothingSelected(AdapterView<?> parentView) {
++                // left blank intentionally
+             }
+         });
+ 
++        asyncLoadMeasurementsToSessionAdapter();
++
++        measurementAdapter = new MeasurementAdapter(measurements);
++
+         driveButton.setOnClickListener(new View.OnClickListener() {
+             @Override
+             public void onClick(View v) {
++                // Make sure measurements session id is valid
++                if (selectedSpinnerItemValue.equals(SPINNER_MOCK_ITEM_1)) {
++                    Toast.makeText(DownloadResults.this, "Wybierz wpierw sesję!", Toast.LENGTH_SHORT).show();
++                    return;
++                }
++
+                 if (!isFileSaved) { // Sprawdź, czy plik nie został już zapisany
+                     signInToGoogleDrive();
+                 } else {
+-                    Toast.makeText(DownloadResults.this, "Plik z wynikami sesji " + selectedSessionId + " został już zapisany w Google Drive.", Toast.LENGTH_SHORT).show();
++                    Toast.makeText(DownloadResults.this, "Plik z wynikami sesji " + selectedMeasurements + " został już zapisany w Google Drive.", Toast.LENGTH_SHORT).show();
+                 }
+             }
+         });
+ 
+-
+-        Button backButton = findViewById(R.id.downloadResultsBackButton);
+         backButton.setOnClickListener(new View.OnClickListener() {
+             @Override
+             public void onClick(View v) {
+@@ -169,7 +181,7 @@ public class DownloadResults extends Activity {
+             GoogleSignInAccount account = completedTask.getResult(ApiException.class);
+ 
+             if (account != null) {
+-                handleDriveSignInSuccess(account);
++                onGoogleDriveSignInSuccess(account);
+             } else {
+                 Log.e("GoogleDriveAuth", "GoogleSignInAccount is null.");
+                 Toast.makeText(getApplicationContext(), "Błąd autoryzacji Google Drive.", Toast.LENGTH_SHORT).show();
+@@ -187,18 +199,28 @@ public class DownloadResults extends Activity {
+                 .build();
+     }
+ 
+-    private void handleDriveSignInSuccess(GoogleSignInAccount account) {
++    private void onGoogleDriveSignInSuccess(GoogleSignInAccount account) {
+         Toast.makeText(getApplicationContext(), "Zalogowano do Google Drive.", Toast.LENGTH_SHORT).show();
+ 
++        // Link account with Google Drive
+         GoogleAccountCredential credential = GoogleAccountCredential.usingOAuth2(
+-                this, Collections.singleton("https://www.googleapis.com/auth/drive.file"));
++                this,
++                Collections.singleton("https://www.googleapis.com/auth/drive.file")
++        );
++
+         credential.setSelectedAccount(account.getAccount());
+ 
+         Drive driveService = getDriveService(credential);
+ 
++        // Make sure measurements data is ready
++        if (selectedMeasurements == null) {
++            Toast.makeText(this, "Dane pomiarowe niedostępne!", Toast.LENGTH_SHORT).show();
++            return;
++        }
++
+         // Tworzenie pliku JSON
+-        String jsonData = createJsonData();
+-        String jsonFileName = selectedSessionId + ".json";
++        String jsonData = new GsonBuilder().create().toJson(selectedMeasurements);
++        String jsonFileName = selectedMeasurements.sessionId + ".json";
+ 
+         executor.execute(() -> {
+             try {
+@@ -214,42 +236,6 @@ public class DownloadResults extends Activity {
+         });
+     }
+ 
+-    private String createJsonData() {
+-        JSONObject sessionData = new JSONObject();
+-        sessionData.put("id", selectedSessionId);
+-
+-        JSONArray glukozaArray = new JSONArray();
+-        JSONArray tetnoArray = new JSONArray();
+-        List<Measurement> measurements = adapter.getMeasurements();
+-
+-        for (int i = 0; i < measurements.size(); i++) {
+-            Measurement measurement = measurements.get(i);
+-            String tetnoValue = measurement.getTetnoValue();
+-            String glukozaValue = measurement.getGlukozaValue();
+-            String measurementTime = getMeasurementTime(i);
+-
+-            if (!tetnoValue.isEmpty() && !glukozaValue.isEmpty()) {
+-                JSONObject glukozaItem = new JSONObject();
+-                glukozaItem.put("date", selectedDate);
+-                glukozaItem.put("time", measurementTime);
+-                glukozaItem.put("value", Integer.parseInt(glukozaValue));
+-
+-                JSONObject tetnoItem = new JSONObject();
+-                tetnoItem.put("date", selectedDate);
+-                tetnoItem.put("time", measurementTime);
+-                tetnoItem.put("value", Integer.parseInt(tetnoValue));
+-
+-                glukozaArray.put(glukozaItem);
+-                tetnoArray.put(tetnoItem);
+-            }
+-        }
+-
+-        sessionData.put("glukoza", glukozaArray);
+-        sessionData.put("tetno", tetnoArray);
+-
+-        return sessionData.toString();
+-    }
+-
+     private File createJsonFile(Drive driveService, String fileName, String fileContent) throws IOException {
+         File fileMetadata = new File();
+         fileMetadata.setName(fileName);
+@@ -264,20 +250,16 @@ public class DownloadResults extends Activity {
+         return file;
+     }
+ 
+-    private String generateMeasurementId() {
+-        return selectedSessionId;
+-    }
+-
+     private String getMeasurementTime(int index) {
+         // Implementacja pobierania czasu pomiaru na podstawie indeksu
+         return "CZAS POMIARU";
+     }
+ 
+-    private void loadHeartRateSessionsFromFirebase() {
++    private void asyncLoadMeasurementsToSessionAdapter() {
+         if (userId != null) {
+             DatabaseReference rootReference = FirebaseDatabase.getInstance().getReference();
+             DatabaseReference heartRateReference = rootReference.child("users").child(userId).child("measurements");
+-            ValueEventListener valueEventListener = heartRateReference.addValueEventListener(new ValueEventListener() {
++            heartRateReference.addListenerForSingleValueEvent(new ValueEventListener() {
+                 @Override
+                 public void onDataChange(DataSnapshot dataSnapshot) {
+                     sessionIds.clear();
+@@ -287,7 +269,12 @@ public class DownloadResults extends Activity {
+                         sessionIds.add(sessionId);
+                     }
+ 
++                    if (sessionIds.size() == 0) {
++                        sessionIds.add(SPINNER_MOCK_ITEM_1);
++                    } else {
+                         Collections.reverse(sessionIds);
++                    }
++
+                     sessionAdapter.notifyDataSetChanged();
+                 }
+ 
+@@ -299,16 +286,22 @@ public class DownloadResults extends Activity {
+         }
+     }
+ 
+-    private void searchHeartRateSessionInFirebase(String sessionId) {
++    private void asyncGetMeasurementsForSessionId(String sessionId) {
+         if (userId != null) {
+-            DatabaseReference sessionsReference = FirebaseDatabase.getInstance().getReference("users").child(userId).child("sessions");
++            // Delete old measurements data before next fetch
++            selectedMeasurements = null;
+ 
++            DatabaseReference sessionsReference = FirebaseDatabase.getInstance().getReference("users").child(userId).child("measurements");
+             DatabaseReference selectedSessionReference = sessionsReference.child(sessionId);
+ 
+             selectedSessionReference.addListenerForSingleValueEvent(new ValueEventListener() {
+                 @Override
+                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
++                    Measurements measurements = dataSnapshot.getValue(Measurements.class);
++                    measurements.setSessionId(sessionId);
+ 
++                    // Store new measurements data
++                    selectedMeasurements = measurements;
+                 }
+ 
+                 @Override
+diff --git a/app/src/main/java/com/example/auth/pojo/measurements/Glukoza.java b/app/src/main/java/com/example/auth/pojo/measurements/Glukoza.java
+new file mode 100644
+index 0000000..a1e2ef9
+--- /dev/null
++++ b/app/src/main/java/com/example/auth/pojo/measurements/Glukoza.java
+@@ -0,0 +1,29 @@
++package com.example.auth.pojo.measurements;
++
++public class Glukoza{
++	public Glukoza4 glukoza4;
++	public Glukoza3 glukoza3;
++	public Glukoza5 glukoza5;
++	public Glukoza2 glukoza2;
++	public Glukoza1 glukoza1;
++
++	public void setGlukoza4(Glukoza4 glukoza4){
++		this.glukoza4 = glukoza4;
++	}
++
++	public void setGlukoza3(Glukoza3 glukoza3){
++		this.glukoza3 = glukoza3;
++	}
++
++	public void setGlukoza5(Glukoza5 glukoza5){
++		this.glukoza5 = glukoza5;
++	}
++
++	public void setGlukoza2(Glukoza2 glukoza2){
++		this.glukoza2 = glukoza2;
++	}
++
++	public void setGlukoza1(Glukoza1 glukoza1){
++		this.glukoza1 = glukoza1;
++	}
++}
+diff --git a/app/src/main/java/com/example/auth/pojo/measurements/Glukoza1.java b/app/src/main/java/com/example/auth/pojo/measurements/Glukoza1.java
+new file mode 100644
+index 0000000..91a7787
+--- /dev/null
++++ b/app/src/main/java/com/example/auth/pojo/measurements/Glukoza1.java
+@@ -0,0 +1,19 @@
++package com.example.auth.pojo.measurements;
++
++public class Glukoza1{
++	public String date;
++	public String hour;
++	public String value;
++
++	public void setDate(String date){
++		this.date = date;
++	}
++
++	public void setHour(String hour){
++		this.hour = hour;
++	}
++
++	public void setValue(String value){
++		this.value = value;
++	}
++}
+diff --git a/app/src/main/java/com/example/auth/pojo/measurements/Glukoza2.java b/app/src/main/java/com/example/auth/pojo/measurements/Glukoza2.java
+new file mode 100644
+index 0000000..cb30411
+--- /dev/null
++++ b/app/src/main/java/com/example/auth/pojo/measurements/Glukoza2.java
+@@ -0,0 +1,19 @@
++package com.example.auth.pojo.measurements;
++
++public class Glukoza2{
++	public String date;
++	public String hour;
++	public String value;
++
++	public void setDate(String date){
++		this.date = date;
++	}
++
++	public void setHour(String hour){
++		this.hour = hour;
++	}
++
++	public void setValue(String value){
++		this.value = value;
++	}
++}
+diff --git a/app/src/main/java/com/example/auth/pojo/measurements/Glukoza3.java b/app/src/main/java/com/example/auth/pojo/measurements/Glukoza3.java
+new file mode 100644
+index 0000000..96cd0d8
+--- /dev/null
++++ b/app/src/main/java/com/example/auth/pojo/measurements/Glukoza3.java
+@@ -0,0 +1,19 @@
++package com.example.auth.pojo.measurements;
++
++public class Glukoza3{
++	public String date;
++	public String hour;
++	public String value;
++
++	public void setDate(String date){
++		this.date = date;
++	}
++
++	public void setHour(String hour){
++		this.hour = hour;
++	}
++
++	public void setValue(String value){
++		this.value = value;
++	}
++}
+diff --git a/app/src/main/java/com/example/auth/pojo/measurements/Glukoza4.java b/app/src/main/java/com/example/auth/pojo/measurements/Glukoza4.java
+new file mode 100644
+index 0000000..9515ae6
+--- /dev/null
++++ b/app/src/main/java/com/example/auth/pojo/measurements/Glukoza4.java
+@@ -0,0 +1,19 @@
++package com.example.auth.pojo.measurements;
++
++public class Glukoza4{
++	public String date;
++	public String hour;
++	public String value;
++
++	public void setDate(String date){
++		this.date = date;
++	}
++
++	public void setHour(String hour){
++		this.hour = hour;
++	}
++
++	public void setValue(String value){
++		this.value = value;
++	}
++}
+diff --git a/app/src/main/java/com/example/auth/pojo/measurements/Glukoza5.java b/app/src/main/java/com/example/auth/pojo/measurements/Glukoza5.java
+new file mode 100644
+index 0000000..d798f5a
+--- /dev/null
++++ b/app/src/main/java/com/example/auth/pojo/measurements/Glukoza5.java
+@@ -0,0 +1,19 @@
++package com.example.auth.pojo.measurements;
++
++public class Glukoza5{
++	public String date;
++	public String hour;
++	public String value;
++
++	public void setDate(String date){
++		this.date = date;
++	}
++
++	public void setHour(String hour){
++		this.hour = hour;
++	}
++
++	public void setValue(String value){
++		this.value = value;
++	}
++}
+diff --git a/app/src/main/java/com/example/auth/pojo/measurements/Measurements.java b/app/src/main/java/com/example/auth/pojo/measurements/Measurements.java
+new file mode 100644
+index 0000000..72b8775
+--- /dev/null
++++ b/app/src/main/java/com/example/auth/pojo/measurements/Measurements.java
+@@ -0,0 +1,20 @@
++package com.example.auth.pojo.measurements;
++
++import com.google.firebase.database.IgnoreExtraProperties;
++
++@IgnoreExtraProperties
++public class Measurements {
++	public String sessionId;
++	public Tetno tetno;
++	public Glukoza glukoza;
++
++	public void setSessionId(String sessionId) {this.sessionId = sessionId;}
++
++	public void setTetno(Tetno tetno){
++		this.tetno = tetno;
++	}
++
++	public void setGlukoza(Glukoza glukoza){
++		this.glukoza = glukoza;
++	}
++}
+diff --git a/app/src/main/java/com/example/auth/pojo/measurements/Tetno.java b/app/src/main/java/com/example/auth/pojo/measurements/Tetno.java
+new file mode 100644
+index 0000000..ba93d7e
+--- /dev/null
++++ b/app/src/main/java/com/example/auth/pojo/measurements/Tetno.java
+@@ -0,0 +1,29 @@
++package com.example.auth.pojo.measurements;
++
++public class Tetno{
++	public Tetno5 tetno5;
++	public Tetno4 tetno4;
++	public Tetno3 tetno3;
++	public Tetno2 tetno2;
++	public Tetno1 tetno1;
++
++	public void setTetno5(Tetno5 tetno5){
++		this.tetno5 = tetno5;
++	}
++
++	public void setTetno4(Tetno4 tetno4){
++		this.tetno4 = tetno4;
++	}
++
++	public void setTetno3(Tetno3 tetno3){
++		this.tetno3 = tetno3;
++	}
++
++	public void setTetno2(Tetno2 tetno2){
++		this.tetno2 = tetno2;
++	}
++
++	public void setTetno1(Tetno1 tetno1){
++		this.tetno1 = tetno1;
++	}
++}
+diff --git a/app/src/main/java/com/example/auth/pojo/measurements/Tetno1.java b/app/src/main/java/com/example/auth/pojo/measurements/Tetno1.java
+new file mode 100644
+index 0000000..4c2a373
+--- /dev/null
++++ b/app/src/main/java/com/example/auth/pojo/measurements/Tetno1.java
+@@ -0,0 +1,19 @@
++package com.example.auth.pojo.measurements;
++
++public class Tetno1{
++	public String date;
++	public String hour;
++	public String value;
++
++	public void setDate(String date){
++		this.date = date;
++	}
++
++	public void setHour(String hour){
++		this.hour = hour;
++	}
++
++	public void setValue(String value){
++		this.value = value;
++	}
++}
+diff --git a/app/src/main/java/com/example/auth/pojo/measurements/Tetno2.java b/app/src/main/java/com/example/auth/pojo/measurements/Tetno2.java
+new file mode 100644
+index 0000000..e654d23
+--- /dev/null
++++ b/app/src/main/java/com/example/auth/pojo/measurements/Tetno2.java
+@@ -0,0 +1,19 @@
++package com.example.auth.pojo.measurements;
++
++public class Tetno2{
++	public String date;
++	public String hour;
++	public String value;
++
++	public void setDate(String date){
++		this.date = date;
++	}
++
++	public void setHour(String hour){
++		this.hour = hour;
++	}
++
++	public void setValue(String value){
++		this.value = value;
++	}
++}
+diff --git a/app/src/main/java/com/example/auth/pojo/measurements/Tetno3.java b/app/src/main/java/com/example/auth/pojo/measurements/Tetno3.java
+new file mode 100644
+index 0000000..d579be9
+--- /dev/null
++++ b/app/src/main/java/com/example/auth/pojo/measurements/Tetno3.java
+@@ -0,0 +1,19 @@
++package com.example.auth.pojo.measurements;
++
++public class Tetno3{
++	public String date;
++	public String hour;
++	public String value;
++
++	public void setDate(String date){
++		this.date = date;
++	}
++
++	public void setHour(String hour){
++		this.hour = hour;
++	}
++
++	public void setValue(String value){
++		this.value = value;
++	}
++}
+diff --git a/app/src/main/java/com/example/auth/pojo/measurements/Tetno4.java b/app/src/main/java/com/example/auth/pojo/measurements/Tetno4.java
+new file mode 100644
+index 0000000..00af365
+--- /dev/null
++++ b/app/src/main/java/com/example/auth/pojo/measurements/Tetno4.java
+@@ -0,0 +1,19 @@
++package com.example.auth.pojo.measurements;
++
++public class Tetno4{
++	public String date;
++	public String hour;
++	public String value;
++
++	public void setDate(String date){
++		this.date = date;
++	}
++
++	public void setHour(String hour){
++		this.hour = hour;
++	}
++
++	public void setValue(String value){
++		this.value = value;
++	}
++}
+diff --git a/app/src/main/java/com/example/auth/pojo/measurements/Tetno5.java b/app/src/main/java/com/example/auth/pojo/measurements/Tetno5.java
+new file mode 100644
+index 0000000..c79107f
+--- /dev/null
++++ b/app/src/main/java/com/example/auth/pojo/measurements/Tetno5.java
+@@ -0,0 +1,19 @@
++package com.example.auth.pojo.measurements;
++
++public class Tetno5{
++	public String date;
++	public String hour;
++	public String value;
++
++	public void setDate(String date){
++		this.date = date;
++	}
++
++	public void setHour(String hour){
++		this.hour = hour;
++	}
++
++	public void setValue(String value){
++		this.value = value;
++	}
++}
