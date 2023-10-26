@@ -58,18 +58,25 @@ public class SignUp extends AppCompatActivity {
         if (TextUtils.isEmpty(password1)) {
             passwordEt1.setError("Wprowadź hasło");
             hasError = true;
+        } else if (password1.length() < 6) {
+            passwordEt1.setError("Hasło powinno zawierać co najmniej 6 znaków");
+            hasError = true;
+        } else if (!password1.matches(".*[A-Z].*")) {
+            passwordEt1.setError("Hasło powinno zawierać co najmniej jedną wielką literę");
+            hasError = true;
+        } else if (!password1.matches(".*[!@#$%^&*(),.?\":{}|<>].*")) {
+            passwordEt1.setError("Hasło powinno zawierać co najmniej jeden znak specjalny");
+            hasError = true;
+        } else if (!password1.matches(".*\\d.*")) {
+            passwordEt1.setError("Hasło powinno zawierać co najmniej jedną cyfrę");
+            hasError = true;
         }
 
         if (TextUtils.isEmpty(password2)) {
             passwordEt2.setError("Potwierdź hasło");
             hasError = true;
-        }
-
-        if (!password1.equals(password2)) {
+        } else if (!password1.equals(password2)) {
             passwordEt2.setError("Wprowadzone hasła nie są jednakowe");
-            hasError = true;
-        } else if (password1.length() < 4) {
-            passwordEt1.setError("Hasło powinno zawierać co najmniej 5 znaków");
             hasError = true;
         }
 
@@ -97,6 +104,8 @@ public class SignUp extends AppCompatActivity {
             }
         });
     }
+
+
 
     private Boolean isValidEmail(CharSequence target) {
         return (!TextUtils.isEmpty(target) && Patterns.EMAIL_ADDRESS.matcher(target).matches());

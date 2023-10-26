@@ -76,7 +76,16 @@ public class ManualMeasure extends Activity {
         saveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                saveMeasurementsToFirebase();
+                if (TextUtils.isEmpty(selectedDate)) {
+                    Toast.makeText(getApplicationContext(), "Wybierz datę pomiaru", Toast.LENGTH_SHORT).show();
+                } else if (isAllFieldsFilled() && isValid()) {
+                    saveMeasurementsToFirebase();
+                } else if (!isAllFieldsFilled()){
+                    Toast.makeText(getApplicationContext(), "Uzupełnij wszystkie pomiary przed zapisaniem", Toast.LENGTH_SHORT).show();
+                }
+                else if (!isValid()){
+                    Toast.makeText(getApplicationContext(), "Wprowadź wartości z zakresu 20-450", Toast.LENGTH_SHORT).show();
+                }
             }
         });
 
@@ -121,6 +130,32 @@ public class ManualMeasure extends Activity {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.ITALY);
         return sdf.format(new Date());
     }
+
+    private boolean isAllFieldsFilled() {
+        List<Measurement> measurements = adapter.getMeasurements();
+        for (Measurement measurement : measurements) {
+            if (TextUtils.isEmpty(measurement.getTetnoValue()) || TextUtils.isEmpty(measurement.getGlukozaValue())) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private boolean isValid() {
+        List<Measurement> measurements = adapter.getMeasurements();
+        for (Measurement measurement : measurements) {
+            try {
+                int tetno = Integer.parseInt(measurement.getTetnoValue());
+                int glukoza = Integer.parseInt(measurement.getGlukozaValue());
+                if (tetno < 20 || tetno > 450 || glukoza < 20 || glukoza > 450) {
+                    return false;
+                }
+            } catch (NumberFormatException e) {
+                return false;
+            }
+        }
+        return true;
+    }
     private void saveMeasurementsToFirebase() {
         List<Measurement> measurements = adapter.getMeasurements();
         boolean allFieldsFilled = true;
@@ -159,6 +194,12 @@ public class ManualMeasure extends Activity {
                     break;
                 }
 
+                // Sprawdzanie, czy pola są wypełnione
+                if (TextUtils.isEmpty(selectedDate)) {
+                    allFieldsFilled = false;
+                    break;
+                }
+
                 // Sprawdzanie, czy wartości są w odpowiednim zakresie
                 try {
                     int tetno = Integer.parseInt(tetnoValue);
@@ -173,7 +214,9 @@ public class ManualMeasure extends Activity {
                     break;
                 }
 
-                String measurementTime = getMeasurementTime(i); // Pobranie godziny pomiaru
+                // Pobranie godziny pomiaru
+                String measurementTime = getMeasurementTime(i);
+
                 // Zapisanie wartości glukozy
                 DatabaseReference glukozaValueReference = glukozaReference.child("glukoza" + (i + 1));
                 glukozaValueReference.child("date").setValue(selectedDate);
@@ -192,9 +235,6 @@ public class ManualMeasure extends Activity {
             } else if (!isValid) {
                 Toast.makeText(getApplicationContext(), "Wprowadź wartości z zakresu 20-450", Toast.LENGTH_SHORT).show();
             } else {
-                // Dodawanie daty do bazy danych
-                //newMeasurementReference.child("data").setValue(selectedDate);
-
                 String sessionNumber = generateMeasurementId();
                 final String toastMessage = "Dane pomiarowe zostały zapisane\nNumer sesji: " + sessionNumber;
                 sessionNumberTextView.setText("Numer zapisanej sesji: " + sessionNumber);
