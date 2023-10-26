@@ -165,7 +165,7 @@
         android:id="@+id/manualButton"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="5dp"
         android:text="Pomiary ręczne"
         android:typeface="sans"
         android:textAllCaps="false"

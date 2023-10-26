@@ -13,6 +13,7 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseAuthUserCollisionException;
 
 public class SignUp extends AppCompatActivity {
     private EditText emailEt, passwordEt1, passwordEt2;
@@ -34,7 +35,7 @@ public class SignUp extends AppCompatActivity {
         SignInTextV = findViewById(R.id.signInTextV);
         SignUpButton.setOnClickListener(v -> Register());
         SignInTextV.setOnClickListener(v -> {
-            Intent intent=new Intent(SignUp.this, SignIn.class);
+            Intent intent = new Intent(SignUp.this, SignIn.class);
             startActivity(intent);
             finish();
         });
@@ -44,44 +45,60 @@ public class SignUp extends AppCompatActivity {
         String email = emailEt.getText().toString();
         String password1 = passwordEt1.getText().toString();
         String password2 = passwordEt2.getText().toString();
+        boolean hasError = false;
+
         if (TextUtils.isEmpty(email)) {
             emailEt.setError("Wprowadź adres email");
-            return;
-        } else if (TextUtils.isEmpty(password1)) {
-            passwordEt1.setError("Wprowadź hasło");
-            return;
-        } else if (TextUtils.isEmpty(password2)) {
-            passwordEt2.setError("Potwierdź hasło");
-            return;
-        } else if (!password1.equals(password2)) {
-            passwordEt2.setError("Wprowadzone hasła nie są jednakowe");
-            return;
-        } else if (password1.length() < 4) {
-            passwordEt1.setError("Hasło powinno zawierać co najmnniej 5 znaków");
-            return;
+            hasError = true;
         } else if (!isValidEmail(email)) {
             emailEt.setError("Niepoprawny format adresu email");
+            hasError = true;
+        }
+
+        if (TextUtils.isEmpty(password1)) {
+            passwordEt1.setError("Wprowadź hasło");
+            hasError = true;
+        }
+
+        if (TextUtils.isEmpty(password2)) {
+            passwordEt2.setError("Potwierdź hasło");
+            hasError = true;
+        }
+
+        if (!password1.equals(password2)) {
+            passwordEt2.setError("Wprowadzone hasła nie są jednakowe");
+            hasError = true;
+        } else if (password1.length() < 4) {
+            passwordEt1.setError("Hasło powinno zawierać co najmniej 5 znaków");
+            hasError = true;
+        }
+
+        if (hasError) {
             return;
         }
+
         progressDialog.setMessage("Proszę czekać...");
         progressDialog.show();
         progressDialog.setCanceledOnTouchOutside(false);
-        firebaseAuth.createUserWithEmailAndPassword(email,password1).addOnCompleteListener(this, task -> {
-            if(task.isSuccessful()){
+
+        firebaseAuth.createUserWithEmailAndPassword(email, password1).addOnCompleteListener(this, task -> {
+            progressDialog.dismiss();
+            if (task.isSuccessful()) {
                 Toast.makeText(SignUp.this, "Konto zostało pomyślnie utworzone", Toast.LENGTH_LONG).show();
-                Intent intent=new Intent(SignUp.this, Menu.class);
+                Intent intent = new Intent(SignUp.this, Menu.class);
                 startActivity(intent);
                 finish();
+            } else {
+                if (task.getException() instanceof FirebaseAuthUserCollisionException) {
+                    emailEt.setError("Konto o podanym adresie e-mail już istnieje");
+                } else {
+                    Toast.makeText(SignUp.this, "Rejestracja nie powiodła się", Toast.LENGTH_LONG).show();
+                }
             }
-            else{
-                Toast.makeText(SignUp.this, "Rejestracja nie powiodła się", Toast.LENGTH_LONG).show();
-            }
-            progressDialog.dismiss();
-
         });
     }
-    private Boolean isValidEmail(CharSequence target){
+
+    private Boolean isValidEmail(CharSequence target) {
         return (!TextUtils.isEmpty(target) && Patterns.EMAIL_ADDRESS.matcher(target).matches());
     }
-
 }
