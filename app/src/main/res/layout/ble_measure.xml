@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -9,16 +10,32 @@
 
     <TextView
         android:id="@+id/headerTextView"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:typeface="sans"
         android:gravity="center"
         android:textColor="#4E057E"
         android:textStyle="bold"
-        android:text="@string/ble_measure"
+        android:text="Pomiary BLE"
         android:textSize="24sp"
         android:layout_marginTop="16dp"
         app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <Button
+        android:id="@+id/datePickerButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="Data pomiaru"
+        android:textAllCaps="false"
+        android:textColor="#4E057E"
+        android:background="@drawable/rectangle_field3"
+        android:textSize="12sp"
+        android:typeface="sans"
+        android:layout_marginStart="8dp"
+        app:layout_constraintTop_toBottomOf="@+id/headerTextView"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
@@ -33,41 +50,303 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/headerTextView" />
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerView"
-        android:layout_width="match_parent"
-        android:typeface="sans"
+    <ScrollView
+        android:id="@+id/scrollView"
+        android:layout_width="0dp"
         android:layout_height="0dp"
-        app:layout_constraintTop_toBottomOf="@+id/headerTextView"
-        app:layout_constraintBottom_toTopOf="@+id/buttonsLayout" />
+        app:layout_constraintTop_toBottomOf="@+id/datePickerButton"
+        app:layout_constraintBottom_toTopOf="@+id/buttonsLayout"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <!-- Pomiar 1 -->
+            <TextView
+                android:id="@+id/measurement1TextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Pomiar 1 - godz. 08:00"
+                android:textColor="#000000"
+                android:textSize="16sp"
+                android:layout_marginTop="16dp"
+                app:layout_constraintTop_toBottomOf="@+id/scrollView"
+                app:layout_constraintStart_toStartOf="parent"
+                android:layout_marginStart="8dp"
+                app:layout_constraintEnd_toEndOf="parent" />
+
+            <Button
+                android:id="@+id/tetno1Button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="POMIAR TĘTNA"
+                android:textAllCaps="false"
+                android:textColor="#4E057E"
+                android:background="@drawable/rectangle_field3"
+                android:textSize="12sp"
+                android:typeface="sans"
+                android:layout_marginTop="8dp"
+                app:layout_constraintTop_toBottomOf="@+id/measurement1TextView"
+                app:layout_constraintStart_toStartOf="parent"
+                android:layout_marginStart="8dp"
+                app:layout_constraintEnd_toEndOf="parent" />
+
+            <Button
+                android:id="@+id/glukoza1Button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="POMIAR GLUKOZY"
+                android:textAllCaps="false"
+                android:textColor="#4E057E"
+                android:background="@drawable/rectangle_field3"
+                android:textSize="12sp"
+                android:typeface="sans"
+                android:layout_marginTop="8dp"
+                app:layout_constraintTop_toBottomOf="@+id/tetno1Button"
+                app:layout_constraintStart_toStartOf="parent"
+                android:layout_marginStart="8dp"
+                app:layout_constraintEnd_toEndOf="parent" />
+
+            <!-- Pomiar 2 -->
+            <TextView
+                android:id="@+id/measurement2TextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Pomiar 2 - godz. 11:00"
+                android:textColor="#000000"
+                android:textSize="16sp"
+                android:layout_marginTop="16dp"
+                app:layout_constraintTop_toBottomOf="@+id/glukoza1Button"
+                app:layout_constraintStart_toStartOf="parent"
+                android:layout_marginStart="8dp"
+                app:layout_constraintEnd_toEndOf="parent" />
+
+            <Button
+                android:id="@+id/tetno2Button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="POMIAR TĘTNA"
+                android:textAllCaps="false"
+                android:textColor="#4E057E"
+                android:background="@drawable/rectangle_field3"
+                android:textSize="12sp"
+                android:typeface="sans"
+                android:layout_marginTop="8dp"
+                app:layout_constraintTop_toBottomOf="@+id/measurement2TextView"
+                app:layout_constraintStart_toStartOf="parent"
+                android:layout_marginStart="8dp"
+                app:layout_constraintEnd_toEndOf="parent" />
+
+            <Button
+                android:id="@+id/glukoza2Button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="POMIAR GLUKOZY"
+                android:textAllCaps="false"
+                android:textColor="#4E057E"
+                android:background="@drawable/rectangle_field3"
+                android:textSize="12sp"
+                android:typeface="sans"
+                android:layout_marginTop="8dp"
+                android:layout_marginStart="8dp"
+                app:layout_constraintTop_toBottomOf="@+id/tetno2Button"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent" />
+
+            <!-- Pomiar 3 -->
+            <TextView
+                android:id="@+id/measurement3TextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Pomiar 3 - godz. 14:00"
+                android:textColor="#000000"
+                android:textSize="16sp"
+                android:layout_marginTop="16dp"
+                android:layout_marginStart="8dp"
+                app:layout_constraintTop_toBottomOf="@+id/glukoza2Button"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent" />
+
+            <Button
+                android:id="@+id/tetno3Button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="POMIAR TĘTNA"
+                android:textAllCaps="false"
+                android:textColor="#4E057E"
+                android:background="@drawable/rectangle_field3"
+                android:textSize="12sp"
+                android:typeface="sans"
+                android:layout_marginTop="8dp"
+                android:layout_marginStart="8dp"
+                app:layout_constraintTop_toBottomOf="@+id/measurement3TextView"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent" />
+
+            <Button
+                android:id="@+id/glukoza3Button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="POMIAR GLUKOZY"
+                android:textAllCaps="false"
+                android:textColor="#4E057E"
+                android:background="@drawable/rectangle_field3"
+                android:textSize="12sp"
+                android:typeface="sans"
+                android:layout_marginTop="8dp"
+                android:layout_marginStart="8dp"
+                app:layout_constraintTop_toBottomOf="@+id/tetno3Button"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent" />
+
+            <!-- Pomiar 4 -->
+            <TextView
+                android:id="@+id/measurement4TextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Pomiar 4 - godz. 17:00"
+                android:textColor="#000000"
+                android:textSize="16sp"
+                android:layout_marginTop="16dp"
+                android:layout_marginStart="8dp"
+                app:layout_constraintTop_toBottomOf="@+id/glukoza3Button"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent" />
+
+            <Button
+                android:id="@+id/tetno4Button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="POMIAR TĘTNA"
+                android:textAllCaps="false"
+                android:textColor="#4E057E"
+                android:background="@drawable/rectangle_field3"
+                android:textSize="12sp"
+                android:typeface="sans"
+                android:layout_marginTop="8dp"
+                android:layout_marginStart="8dp"
+                app:layout_constraintTop_toBottomOf="@+id/measurement4TextView"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent" />
+
+            <Button
+                android:id="@+id/glukoza4Button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="POMIAR GLUKOZY"
+                android:textAllCaps="false"
+                android:textColor="#4E057E"
+                android:background="@drawable/rectangle_field3"
+                android:textSize="12sp"
+                android:typeface="sans"
+                android:layout_marginTop="8dp"
+                android:layout_marginStart="8dp"
+                app:layout_constraintTop_toBottomOf="@+id/tetno4Button"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent" />
+
+            <!-- Pomiar 5 -->
+            <TextView
+                android:id="@+id/measurement5TextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Pomiar 5 - godz. 20:00"
+                android:textColor="#000000"
+                android:textSize="16sp"
+                android:layout_marginTop="16dp"
+                android:layout_marginStart="8dp"
+                app:layout_constraintTop_toBottomOf="@+id/glukoza4Button"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent" />
+
+            <Button
+                android:id="@+id/tetno5Button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="POMIAR TĘTNA"
+                android:textAllCaps="false"
+                android:textColor="#4E057E"
+                android:background="@drawable/rectangle_field3"
+                android:textSize="12sp"
+                android:typeface="sans"
+                android:layout_marginTop="8dp"
+                android:layout_marginStart="8dp"
+                app:layout_constraintTop_toBottomOf="@+id/measurement5TextView"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent" />
+
+            <Button
+                android:id="@+id/glukoza5Button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="POMIAR GLUKOZY"
+                android:textAllCaps="false"
+                android:textColor="#4E057E"
+                android:background="@drawable/rectangle_field3"
+                android:textSize="12sp"
+                android:typeface="sans"
+                android:layout_marginTop="8dp"
+                android:layout_marginStart="8dp"
+                app:layout_constraintTop_toBottomOf="@+id/tetno5Button"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent" />
+
+        </LinearLayout>
+    </ScrollView>
 
     <LinearLayout
         android:id="@+id/buttonsLayout"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
+        android:layout_margin="16dp"
         android:gravity="center"
-        android:typeface="sans"
+        android:orientation="horizontal"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        android:layout_margin="16dp">
+        app:layout_constraintStart_toStartOf="parent">
 
         <Button
             android:id="@+id/bleMeasurementBackButton"
-            android:layout_width=   "0dp"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:typeface="sans"
             android:layout_weight="1"
+            android:typeface="sans"
             android:text="Powrót"
+            android:textColor="#4E057E"
+            android:background="@drawable/rectangle_field3"
+            android:textAllCaps="false"
             android:textSize="12sp"
-            android:layout_marginEnd="8dp"
+            app:layout_constraintEnd_toStartOf="@+id/saveButton" />
+
+        <Button
+            android:id="@+id/saveButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:typeface="sans"
+            android:text="Zapisz"
             android:textAllCaps="false"
             android:textColor="#4E057E"
-            android:background="@drawable/rectangle_field3"/>
+            android:background="@drawable/rectangle_field3"
+            android:textSize="12sp"
+            app:layout_constraintEnd_toStartOf="@+id/clearButton" />
 
+        <Button
+            android:id="@+id/clearButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:typeface="sans"
+            android:text="Wyczyść"
+            android:textAllCaps="false"
+            android:textColor="#4E057E"
+            android:background="@drawable/rectangle_field3"
+            android:textSize="12sp"
+            app:layout_constraintEnd_toEndOf="parent" />
 
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
+
