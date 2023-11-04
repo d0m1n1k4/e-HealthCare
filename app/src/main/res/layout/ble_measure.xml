@@ -39,6 +39,8 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
+
+
     <ImageView
         android:id="@+id/iconImageView"
         android:layout_width="40dp"
@@ -50,249 +52,267 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/headerTextView" />
 
+    <Button
+        android:id="@+id/connectToRaspberryButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Połącz z Raspberry"
+        android:textAllCaps="false"
+        android:textColor="#4E057E"
+        android:background="@drawable/rectangle_field3"
+        android:textSize="12sp"
+        android:typeface="sans"
+        app:layout_constraintTop_toBottomOf="@+id/datePickerButton"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
     <ScrollView
         android:id="@+id/scrollView"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        app:layout_constraintTop_toBottomOf="@+id/datePickerButton"
         app:layout_constraintBottom_toTopOf="@+id/buttonsLayout"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
+        app:layout_constraintTop_toBottomOf="@+id/datePickerButton"
+        app:layout_constraintVertical_bias="1.0">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="40dp"
             android:orientation="vertical">
 
             <!-- Pomiar 1 -->
+
             <TextView
                 android:id="@+id/measurement1TextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="16dp"
                 android:text="Pomiar 1 - godz. 08:00"
                 android:textColor="#000000"
                 android:textSize="16sp"
-                android:layout_marginTop="16dp"
-                app:layout_constraintTop_toBottomOf="@+id/scrollView"
+                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                android:layout_marginStart="8dp"
-                app:layout_constraintEnd_toEndOf="parent" />
+                app:layout_constraintTop_toBottomOf="@+id/scrollView" />
 
             <Button
                 android:id="@+id/tetno1Button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/rectangle_field3"
                 android:text="POMIAR TĘTNA"
                 android:textAllCaps="false"
                 android:textColor="#4E057E"
-                android:background="@drawable/rectangle_field3"
                 android:textSize="12sp"
                 android:typeface="sans"
-                android:layout_marginTop="8dp"
-                app:layout_constraintTop_toBottomOf="@+id/measurement1TextView"
+                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                android:layout_marginStart="8dp"
-                app:layout_constraintEnd_toEndOf="parent" />
+                app:layout_constraintTop_toBottomOf="@+id/measurement1TextView" />
 
             <Button
                 android:id="@+id/glukoza1Button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/rectangle_field3"
                 android:text="POMIAR GLUKOZY"
                 android:textAllCaps="false"
                 android:textColor="#4E057E"
-                android:background="@drawable/rectangle_field3"
                 android:textSize="12sp"
                 android:typeface="sans"
-                android:layout_marginTop="8dp"
-                app:layout_constraintTop_toBottomOf="@+id/tetno1Button"
+                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                android:layout_marginStart="8dp"
-                app:layout_constraintEnd_toEndOf="parent" />
+                app:layout_constraintTop_toBottomOf="@+id/tetno1Button" />
 
             <!-- Pomiar 2 -->
             <TextView
                 android:id="@+id/measurement2TextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="16dp"
                 android:text="Pomiar 2 - godz. 11:00"
                 android:textColor="#000000"
                 android:textSize="16sp"
-                android:layout_marginTop="16dp"
-                app:layout_constraintTop_toBottomOf="@+id/glukoza1Button"
+                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                android:layout_marginStart="8dp"
-                app:layout_constraintEnd_toEndOf="parent" />
+                app:layout_constraintTop_toBottomOf="@+id/glukoza1Button" />
 
             <Button
                 android:id="@+id/tetno2Button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/rectangle_field3"
                 android:text="POMIAR TĘTNA"
                 android:textAllCaps="false"
                 android:textColor="#4E057E"
-                android:background="@drawable/rectangle_field3"
                 android:textSize="12sp"
                 android:typeface="sans"
-                android:layout_marginTop="8dp"
-                app:layout_constraintTop_toBottomOf="@+id/measurement2TextView"
+                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                android:layout_marginStart="8dp"
-                app:layout_constraintEnd_toEndOf="parent" />
+                app:layout_constraintTop_toBottomOf="@+id/measurement2TextView" />
 
             <Button
                 android:id="@+id/glukoza2Button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/rectangle_field3"
                 android:text="POMIAR GLUKOZY"
                 android:textAllCaps="false"
                 android:textColor="#4E057E"
-                android:background="@drawable/rectangle_field3"
                 android:textSize="12sp"
                 android:typeface="sans"
-                android:layout_marginTop="8dp"
-                android:layout_marginStart="8dp"
-                app:layout_constraintTop_toBottomOf="@+id/tetno2Button"
+                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent" />
+                app:layout_constraintTop_toBottomOf="@+id/tetno2Button" />
 
             <!-- Pomiar 3 -->
             <TextView
                 android:id="@+id/measurement3TextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="16dp"
                 android:text="Pomiar 3 - godz. 14:00"
                 android:textColor="#000000"
                 android:textSize="16sp"
-                android:layout_marginTop="16dp"
-                android:layout_marginStart="8dp"
-                app:layout_constraintTop_toBottomOf="@+id/glukoza2Button"
+                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent" />
+                app:layout_constraintTop_toBottomOf="@+id/glukoza2Button" />
 
             <Button
                 android:id="@+id/tetno3Button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/rectangle_field3"
                 android:text="POMIAR TĘTNA"
                 android:textAllCaps="false"
                 android:textColor="#4E057E"
-                android:background="@drawable/rectangle_field3"
                 android:textSize="12sp"
                 android:typeface="sans"
-                android:layout_marginTop="8dp"
-                android:layout_marginStart="8dp"
-                app:layout_constraintTop_toBottomOf="@+id/measurement3TextView"
+                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent" />
+                app:layout_constraintTop_toBottomOf="@+id/measurement3TextView" />
 
             <Button
                 android:id="@+id/glukoza3Button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/rectangle_field3"
                 android:text="POMIAR GLUKOZY"
                 android:textAllCaps="false"
                 android:textColor="#4E057E"
-                android:background="@drawable/rectangle_field3"
                 android:textSize="12sp"
                 android:typeface="sans"
-                android:layout_marginTop="8dp"
-                android:layout_marginStart="8dp"
-                app:layout_constraintTop_toBottomOf="@+id/tetno3Button"
+                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent" />
+                app:layout_constraintTop_toBottomOf="@+id/tetno3Button" />
 
             <!-- Pomiar 4 -->
             <TextView
                 android:id="@+id/measurement4TextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="16dp"
                 android:text="Pomiar 4 - godz. 17:00"
                 android:textColor="#000000"
                 android:textSize="16sp"
-                android:layout_marginTop="16dp"
-                android:layout_marginStart="8dp"
-                app:layout_constraintTop_toBottomOf="@+id/glukoza3Button"
+                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent" />
+                app:layout_constraintTop_toBottomOf="@+id/glukoza3Button" />
 
             <Button
                 android:id="@+id/tetno4Button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/rectangle_field3"
                 android:text="POMIAR TĘTNA"
                 android:textAllCaps="false"
                 android:textColor="#4E057E"
-                android:background="@drawable/rectangle_field3"
                 android:textSize="12sp"
                 android:typeface="sans"
-                android:layout_marginTop="8dp"
-                android:layout_marginStart="8dp"
-                app:layout_constraintTop_toBottomOf="@+id/measurement4TextView"
+                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent" />
+                app:layout_constraintTop_toBottomOf="@+id/measurement4TextView" />
 
             <Button
                 android:id="@+id/glukoza4Button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/rectangle_field3"
                 android:text="POMIAR GLUKOZY"
                 android:textAllCaps="false"
                 android:textColor="#4E057E"
-                android:background="@drawable/rectangle_field3"
                 android:textSize="12sp"
                 android:typeface="sans"
-                android:layout_marginTop="8dp"
-                android:layout_marginStart="8dp"
-                app:layout_constraintTop_toBottomOf="@+id/tetno4Button"
+                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent" />
+                app:layout_constraintTop_toBottomOf="@+id/tetno4Button" />
 
             <!-- Pomiar 5 -->
             <TextView
                 android:id="@+id/measurement5TextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="16dp"
                 android:text="Pomiar 5 - godz. 20:00"
                 android:textColor="#000000"
                 android:textSize="16sp"
-                android:layout_marginTop="16dp"
-                android:layout_marginStart="8dp"
-                app:layout_constraintTop_toBottomOf="@+id/glukoza4Button"
+                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent" />
+                app:layout_constraintTop_toBottomOf="@+id/glukoza4Button" />
 
             <Button
                 android:id="@+id/tetno5Button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/rectangle_field3"
                 android:text="POMIAR TĘTNA"
                 android:textAllCaps="false"
                 android:textColor="#4E057E"
-                android:background="@drawable/rectangle_field3"
                 android:textSize="12sp"
                 android:typeface="sans"
-                android:layout_marginTop="8dp"
-                android:layout_marginStart="8dp"
-                app:layout_constraintTop_toBottomOf="@+id/measurement5TextView"
+                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent" />
+                app:layout_constraintTop_toBottomOf="@+id/measurement5TextView" />
 
             <Button
                 android:id="@+id/glukoza5Button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/rectangle_field3"
                 android:text="POMIAR GLUKOZY"
                 android:textAllCaps="false"
                 android:textColor="#4E057E"
-                android:background="@drawable/rectangle_field3"
                 android:textSize="12sp"
                 android:typeface="sans"
-                android:layout_marginTop="8dp"
-                android:layout_marginStart="8dp"
-                app:layout_constraintTop_toBottomOf="@+id/tetno5Button"
+                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent" />
+                app:layout_constraintTop_toBottomOf="@+id/tetno5Button" />
 
         </LinearLayout>
     </ScrollView>
