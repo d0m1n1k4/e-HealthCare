@@ -61,8 +61,18 @@ public class ManualMeasure extends Activity {
         measurements.add(new Measurement("Pomiar 4 - godz. 17:00", "", ""));
         measurements.add(new Measurement("Pomiar 5 - godz. 20:00", "", ""));
 
+
+
         adapter = new MeasurementAdapter(measurements);
         recyclerView.setAdapter(adapter);
+
+        Button backButton = findViewById(R.id.backButton);
+        backButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
 
         Button clearButton = findViewById(R.id.clearButton);
         clearButton.setOnClickListener(new View.OnClickListener() {
@@ -72,6 +82,7 @@ public class ManualMeasure extends Activity {
             }
         });
 
+
         Button saveButton = findViewById(R.id.saveButton);
         saveButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -79,23 +90,17 @@ public class ManualMeasure extends Activity {
                 if (TextUtils.isEmpty(selectedDate)) {
                     Toast.makeText(getApplicationContext(), "Wybierz datę pomiaru", Toast.LENGTH_SHORT).show();
                 } else if (isAllFieldsFilled() && isValid()) {
-                    saveMeasurementsToFirebase();
+
+                    ;
                 } else if (!isAllFieldsFilled()){
                     Toast.makeText(getApplicationContext(), "Uzupełnij wszystkie pomiary przed zapisaniem", Toast.LENGTH_SHORT).show();
                 }
                 else if (!isValid()){
-                    Toast.makeText(getApplicationContext(), "Wprowadź wartości z zakresu 20-450", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(), "Wprowadź wartości dla tętna z zakresu 20-190 oraz dla glukozy z zakresu 20-600", Toast.LENGTH_SHORT).show();
                 }
             }
         });
 
-        Button backButton = findViewById(R.id.backButton);
-        backButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                finish();
-            }
-        });
 
         // Obsługa przycisku "DATA POMIARU"
         Button selectDateButton = findViewById(R.id.selectDateButton);
@@ -106,7 +111,6 @@ public class ManualMeasure extends Activity {
             }
         });
     }
-
     private void showDatePickerDialog() {
         // Pobieranie aktualnej daty
         Calendar calendar = Calendar.getInstance();
@@ -147,7 +151,7 @@ public class ManualMeasure extends Activity {
             try {
                 int tetno = Integer.parseInt(measurement.getTetnoValue());
                 int glukoza = Integer.parseInt(measurement.getGlukozaValue());
-                if (tetno < 20 || tetno > 450 || glukoza < 20 || glukoza > 450) {
+                if (tetno > 20 || tetno < 190 || glukoza > 20 || glukoza < 600) {
                     return false;
                 }
             } catch (NumberFormatException e) {
@@ -176,10 +180,8 @@ public class ManualMeasure extends Activity {
             DatabaseReference measurementsReference = userReference.child("measurements");
             String measurementId = generateMeasurementId();
             DatabaseReference newMeasurementReference = measurementsReference.child(measurementId);
-
             DatabaseReference glukozaReference = newMeasurementReference.child("glukoza");
             DatabaseReference tetnoReference = newMeasurementReference.child("tetno");
-
             newMeasurementReference.child("date").setValue(selectedDate);
 
 
@@ -188,24 +190,21 @@ public class ManualMeasure extends Activity {
                 String tetnoValue = measurement.getTetnoValue();
                 String glukozaValue = measurement.getGlukozaValue();
 
-                // Sprawdzanie, czy pola są wypełnione
                 if (TextUtils.isEmpty(tetnoValue) || TextUtils.isEmpty(glukozaValue)) {
                     allFieldsFilled = false;
                     break;
                 }
 
-                // Sprawdzanie, czy pola są wypełnione
                 if (TextUtils.isEmpty(selectedDate)) {
                     allFieldsFilled = false;
                     break;
                 }
 
-                // Sprawdzanie, czy wartości są w odpowiednim zakresie
                 try {
                     int tetno = Integer.parseInt(tetnoValue);
                     int glukoza = Integer.parseInt(glukozaValue);
 
-                    if (tetno < 20 || tetno > 450 || glukoza < 20 || glukoza > 450) {
+                    if (tetno > 20 || tetno < 190 || glukoza > 20 || glukoza < 600) {
                         isValid = false;
                         break;
                     }
@@ -214,16 +213,13 @@ public class ManualMeasure extends Activity {
                     break;
                 }
 
-                // Pobranie godziny pomiaru
                 String measurementTime = getMeasurementTime(i);
 
-                // Zapisanie wartości glukozy
                 DatabaseReference glukozaValueReference = glukozaReference.child("glukoza" + (i + 1));
                 glukozaValueReference.child("date").setValue(selectedDate);
                 glukozaValueReference.child("hour").setValue(measurementTime);
                 glukozaValueReference.child("value").setValue(glukozaValue);
 
-                // Zapisanie wartości tetna
                 DatabaseReference tetnoValueReference = tetnoReference.child("tetno" + (i + 1));
                 tetnoValueReference.child("date").setValue(selectedDate);
                 tetnoValueReference.child("hour").setValue(measurementTime);
@@ -233,7 +229,7 @@ public class ManualMeasure extends Activity {
             if (!allFieldsFilled) {
                 Toast.makeText(getApplicationContext(), "Uzupełnij wszystkie pomiary przed zapisaniem", Toast.LENGTH_SHORT).show();
             } else if (!isValid) {
-                Toast.makeText(getApplicationContext(), "Wprowadź wartości z zakresu 20-450", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), "Wprowadź wartości dla tętna z zakresu 20-190 oraz dla glukozy z zakresu 20-600", Toast.LENGTH_SHORT).show();
             } else {
                 String sessionNumber = generateMeasurementId();
                 final String toastMessage = "Dane pomiarowe zostały zapisane\nNumer sesji: " + sessionNumber;

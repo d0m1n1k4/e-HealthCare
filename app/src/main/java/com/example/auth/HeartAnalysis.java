@@ -73,7 +73,6 @@ public class HeartAnalysis extends FragmentActivity {
                 String selectedSessionId = sessionIds.get(position);
                 searchHeartRateSessionInFirebase(selectedSessionId);
             }
-
             @Override
             public void onNothingSelected(AdapterView<?> parentView) {
             }
@@ -116,11 +115,9 @@ public class HeartAnalysis extends FragmentActivity {
                         String sessionId = sessionSnapshot.getKey();
                         sessionIds.add(sessionId);
                     }
-
                     Collections.reverse(sessionIds);
                     sessionAdapter.notifyDataSetChanged();
                 }
-
                 @Override
                 public void onCancelled(@NonNull DatabaseError databaseError) {
                 }
@@ -144,11 +141,9 @@ public class HeartAnalysis extends FragmentActivity {
                         String selectedDate = dataSnapshot.child("date").getValue(String.class);
 
                         dateTextView.setText("Data wykonania pomiaru: " + selectedDate);
-
                         updateHeartRateChart(heartRateEntries);
                     }
                 }
-
                 @Override
                 public void onCancelled(DatabaseError databaseError) {
                 }
@@ -158,13 +153,11 @@ public class HeartAnalysis extends FragmentActivity {
 
 
     private void initHeartRateChart(LineChart chart, String chartTitle) {
-        // Ustawianie parametrów osi Y
         YAxis leftAxis = chart.getAxisLeft();
         leftAxis.setGranularity(1f); // Skok na osi Y
         leftAxis.setSpaceTop(50f);
         chart.getAxisRight().setEnabled(false);
 
-        // Konfigurowanie wykresu
         chart.setDrawGridBackground(false);
         chart.getDescription().setEnabled(false);
         chart.setNoDataText("Brak danych do wyświetlenia.");

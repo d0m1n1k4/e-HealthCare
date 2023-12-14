@@ -34,9 +34,7 @@ public class SignIn extends AppCompatActivity {
         setContentView(R.layout.sign_in);
 
         firebaseAuth = FirebaseAuth.getInstance();
-
         databaseReference = FirebaseDatabase.getInstance().getReference();
-
         emailEt = findViewById(R.id.email);
         passwordEt = findViewById(R.id.password);
         SignInButton = findViewById(R.id.login);
@@ -78,7 +76,6 @@ public class SignIn extends AppCompatActivity {
                     Toast.makeText(SignIn.this, "Logowanie przebiegło pomyślnie", Toast.LENGTH_LONG).show();
                     // Dodaj informacje o zalogowanym użytkowniku do Firebase Realtime Database
                     addUserToDatabase(firebaseAuth.getCurrentUser().getUid());
-
                     Intent intent = new Intent(SignIn.this, Menu.class);
                     startActivity(intent);
                     finish();

@@ -30,6 +30,19 @@ public class Menu extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.menu);
 
+        btON = findViewById(R.id.btON);
+        disableBluetoothButton = findViewById(R.id.disableBluetoothButton);
+        myBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        btEnablingIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+        requestCodeForEnable = 1;
+
+        if (myBluetoothAdapter != null && myBluetoothAdapter.isEnabled()) {
+            isBluetoothEnabled = true;
+            updateBluetoothButtonState();
+        }
+
+        bluetoothONMethod();
+
         dashboardTextView = findViewById(R.id.dashboardTextView);
         // Pobranie nazwy użytkownika (człon przed "@") po zalogowaniu
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
@@ -39,19 +52,6 @@ public class Menu extends Activity {
         String welcomeText = "Zalogowany użytkownik: " + username;
         dashboardTextView.setText(welcomeText);
 
-        btON = findViewById(R.id.btON);
-        disableBluetoothButton = findViewById(R.id.disableBluetoothButton);
-        myBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-        btEnablingIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-        requestCodeForEnable = 1;
-
-        // Sprawdzanie stanu włączenia Bluetooth
-        if (myBluetoothAdapter != null && myBluetoothAdapter.isEnabled()) {
-            isBluetoothEnabled = true;
-            updateBluetoothButtonState();
-        }
-
-        bluetoothONMethod();
 
         bleButton = findViewById(R.id.bleButton);
         bleButton.setOnClickListener(new View.OnClickListener() {

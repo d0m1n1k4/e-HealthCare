@@ -54,7 +54,6 @@ public class SignUp extends AppCompatActivity {
             emailEt.setError("Niepoprawny format adresu email");
             hasError = true;
         }
-
         if (TextUtils.isEmpty(password1)) {
             passwordEt1.setError("Wprowadź hasło");
             hasError = true;
@@ -71,7 +70,6 @@ public class SignUp extends AppCompatActivity {
             passwordEt1.setError("Hasło powinno zawierać co najmniej jedną cyfrę");
             hasError = true;
         }
-
         if (TextUtils.isEmpty(password2)) {
             passwordEt2.setError("Potwierdź hasło");
             hasError = true;
