@@ -9,14 +9,12 @@ import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattService;
 import android.bluetooth.BluetoothManager;
 import android.bluetooth.BluetoothProfile;
-import android.bluetooth.le.BluetoothLeScanner;
-import android.bluetooth.le.ScanCallback;
-import android.bluetooth.le.ScanResult;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -24,7 +22,6 @@ import android.widget.Toast;
 
 import androidx.core.app.ActivityCompat;
 
-import java.util.List;
 import java.util.UUID;
 
 public class BLEMeasure extends Activity {
@@ -36,6 +33,9 @@ public class BLEMeasure extends Activity {
     private static final String RASPBERRY_ADDRESS = "28:CD:C1:03:EB:9F";
     private static final UUID MOBILE_APP_SERVICE_UUID = UUID.fromString("c539cece-97a4-11ee-b9d1-0242ac120002");
     private static final UUID MOBILE_APP_CHAR_UUID = UUID.fromString("c539cece-97a4-11ee-b9d1-0242ac120002");
+
+    private Handler scanHandler = new Handler();
+    private static final long SCAN_PERIOD = 10000;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,72 +80,83 @@ public class BLEMeasure extends Activity {
                 }
             }
 
-            BluetoothLeScanner scanner = bluetoothAdapter.getBluetoothLeScanner();
-            if (scanner != null) {
-                scanner.startScan(scanCallback);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                scanHandler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        bluetoothAdapter.stopLeScan(leScanCallback);
+                        Log.d("BLEMeasure", "Bluetooth LE scan stopped.");
+                    }
+                }, SCAN_PERIOD);
+
+                bluetoothAdapter.startLeScan(leScanCallback);
                 Log.d("BLEMeasure", "Bluetooth LE scan started successfully.");
-            } else {
-                Log.e("BLEMeasure", "BluetoothLeScanner is null");
             }
         } else {
             Log.e("BLEMeasure", "Bluetooth is not enabled.");
         }
     }
 
-    private ScanCallback scanCallback = new ScanCallback() {
+    private BluetoothAdapter.LeScanCallback leScanCallback = new BluetoothAdapter.LeScanCallback() {
         @Override
-        public void onScanResult(int callbackType, ScanResult result) {
-            BluetoothDevice device = result.getDevice();
-            if (ActivityCompat.checkSelfPermission(BLEMeasure.this, android.Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
-                return;
-            }
-            Log.d("BLEMeasure", "Found device: " + device.getName() + ", Address: " + device.getAddress());
-            if (RASPBERRY_ADDRESS.equals(device.getAddress())) {
-                Log.d("BLEMeasure", "Found Raspberry Pi Pico. Connecting...");
-                connectToRaspberry(device);
-                stopScan();
-            }
-        }
-
-        @Override
-        public void onBatchScanResults(List<ScanResult> results) {
-            for (ScanResult result : results) {
-                Log.d("BLEMeasure", "BatchScanResult: " + result.getDevice().getAddress());
-            }
-        }
-
-        @Override
-        public void onScanFailed(int errorCode) {
-            Log.e("BLEMeasure", "Scan failed with error code: " + errorCode);
+        public void onLeScan(final BluetoothDevice device, int rssi, byte[] scanRecord) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    if (ActivityCompat.checkSelfPermission(BLEMeasure.this, android.Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
+                        // TODO: Consider calling
+                        //    ActivityCompat#requestPermissions
+                        // here to request the missing permissions, and then overriding
+                        //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                        //                                          int[] grantResults)
+                        // to handle the case where the user grants the permission. See the documentation
+                        // for ActivityCompat#requestPermissions for more details.
+                        return;
+                    }
+                    Log.d("BLEMeasure", "Found device: " + device.getName() + ", Address: " + device.getAddress());
+                    if (RASPBERRY_ADDRESS.equals(device.getAddress())) {
+                        Log.d("BLEMeasure", "Found Raspberry Pi Pico. Connecting...");
+                        connectToRaspberry(device);
+                        scanHandler.removeCallbacksAndMessages(null);
+                    }
+                }
+            });
         }
     };
 
     private void connectToRaspberry(BluetoothDevice raspberryDevice) {
-        if (bluetoothAdapter != null) {
+        if (bluetoothAdapter == null || raspberryDevice == null) {
+            Log.e("BLEMeasure", "BluetoothAdapter or RaspberryDevice is null");
+            return;
+        }
+
+        if (!bluetoothAdapter.isEnabled()) {
+            Log.e("BLEMeasure", "Bluetooth is not enabled");
+            return;
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
-                // TODO: Consider calling
-                //    ActivityCompat#requestPermissions
-                // here to request the missing permissions, and then overriding
-                //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                //                                          int[] grantResults)
-                // to handle the case where the user grants the permission. See the documentation
-                // for ActivityCompat#requestPermissions for more details.
+                Log.e("BLEMeasure", "Bluetooth connect permission not granted");
                 return;
             }
-            bluetoothGatt = raspberryDevice.connectGatt(BLEMeasure.this, false, gattCallback);
         }
-    }
 
+        // zabezpieczenie przed ponownym próbowaniem połączenia, gdy już jesteśmy połączeni
+        if (connected) {
+            Log.d("BLEMeasure", "Already connected to Raspberry Pi Pico");
+            return;
+        }
+
+        // zabezpieczenie przed próbą ponownego połączenia w trakcie trwającego skanowania
+        scanHandler.removeCallbacksAndMessages(null);
+
+        Log.d("BLEMeasure", "Connecting to Raspberry Pi Pico...");
+        bluetoothGatt = raspberryDevice.connectGatt(BLEMeasure.this, false, gattCallback);
+    }
     private void disconnectFromRaspberry() {
         if (bluetoothGatt != null) {
             if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
-                // TODO: Consider calling
-                //    ActivityCompat#requestPermissions
-                // here to request the missing permissions, and then overriding
-                //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                //                                          int[] grantResults)
-                // to handle the case where the user grants the permission. See the documentation
-                // for ActivityCompat#requestPermissions for more details.
                 return;
             }
             bluetoothGatt.disconnect();
@@ -197,19 +208,8 @@ public class BLEMeasure extends Activity {
 
     private void stopScan() {
         if (bluetoothAdapter != null && bluetoothAdapter.isEnabled()) {
-            BluetoothLeScanner scanner = bluetoothAdapter.getBluetoothLeScanner();
-            if (scanner != null) {
-                if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.BLUETOOTH_SCAN) != PackageManager.PERMISSION_GRANTED) {
-                    // TODO: Consider calling
-                    //    ActivityCompat#requestPermissions
-                    // here to request the missing permissions, and then overriding
-                    //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                    //                                          int[] grantResults)
-                    // to handle the case where the user grants the permission. See the documentation
-                    // for ActivityCompat#requestPermissions for more details.
-                    return;
-                }
-                scanner.stopScan(scanCallback);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                bluetoothAdapter.stopLeScan(leScanCallback);
                 Log.d("BLEMeasure", "Bluetooth LE scan stopped.");
             }
         }
