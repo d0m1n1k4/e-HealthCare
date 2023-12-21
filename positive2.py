@@ -16,18 +16,14 @@ _FLAG_READ = const(0x0002)
 _FLAG_NOTIFY = const(0x0010)
 _FLAG_INDICATE = const(0x0020)
 
-
-# org.bluetooth.service.heart_rate
 _HEART_RATE_UUID = bluetooth.UUID(0x180D)
-# org.bluetooth.service.blood_glucose
 _BLOOD_GLUCOSE_UUID = bluetooth.UUID(0x1808)
 
-# org.bluetooth.characteristic.heart_rate_measurement
 _HEART_RATE_CHAR = (
     bluetooth.UUID(0x2A37),
     _FLAG_NOTIFY | _FLAG_INDICATE,
 )
-# org.bluetooth.characteristic.blood_glucose_measurement
+
 _BLOOD_GLUCOSE_CHAR = (
     bluetooth.UUID(0x2A18),
     _FLAG_NOTIFY,
@@ -43,6 +39,18 @@ _BLOOD_GLUCOSE_SERVICE = (
     (_BLOOD_GLUCOSE_CHAR,),
 )
 
+
+_CUSTOM_SERVICE_UUID = bluetooth.UUID(0x1234)
+_CUSTOM_CHAR_UUID = (
+    bluetooth.UUID(0x5678),
+    _FLAG_READ | _FLAG_NOTIFY | _FLAG_INDICATE,
+)
+
+_CUSTOM_SERVICE = (
+    _CUSTOM_SERVICE_UUID,
+    (_CUSTOM_CHAR_UUID,),
+)
+
 class BLEHealthSensor:
     def __init__(self, ble, name=""):
         self._ble = ble
@@ -50,16 +58,15 @@ class BLEHealthSensor:
         self._ble.irq(self._irq)
         ((self._hr_handle,),) = self._ble.gatts_register_services((_HEART_RATE_SERVICE,))
         ((self._bg_handle,),) = self._ble.gatts_register_services((_BLOOD_GLUCOSE_SERVICE,))
+        ((self._custom_handle,),) = self._ble.gatts_register_services((_CUSTOM_SERVICE,))
         self._connections = set()
         self._heart_rate_counter = 0
         self._glucose_counter = 0
         self._heart_rate_measurement_complete = False
         self._glucose_measurement_complete = False
-        self._button_pressed = False  # Dodane pole do śledzenia stanu przycisku
+        self._button_pressed = False
 
-        # Ustalamy Pin przycisku
         self._button = Pin(0, Pin.IN, Pin.PULL_DOWN)
-        # Przypisujemy obsługę naciśnięcia przycisku do metody klasy
         self._button.irq(trigger=Pin.IRQ_FALLING, handler=self._handle_button_press)
 
         if len(name) == 0:
@@ -74,10 +81,15 @@ class BLEHealthSensor:
         if event == _IRQ_CENTRAL_CONNECT:
             conn_handle, _, _ = data
             self._connections.add(conn_handle)
+
+            print("Connected to central:", conn_handle)
+            self.send_data_to_mobile(conn_handle, b"Hello from Pico!")
+
         elif event == _IRQ_CENTRAL_DISCONNECT:
             conn_handle, _, _ = data
             self._connections.remove(conn_handle)
             self._advertise()
+
         elif event == _IRQ_GATTS_INDICATE_DONE:
             conn_handle, value_handle, status = data
             if value_handle == self._hr_handle:
@@ -86,41 +98,36 @@ class BLEHealthSensor:
                 self._glucose_measurement_complete = True
 
     def _handle_button_press(self, pin):
-        # Obsługa naciśnięcia przycisku taktownego
         self._button_pressed = True
 
     def _wait_for_button_release(self):
-        # Oczekiwanie na zwolnienie przycisku
         while self._button.value() == 0:
             time.sleep_ms(10)
 
     def _wait_for_button_press(self):
-        # Oczekiwanie na naciśnięcie przycisku
         while self._button.value() == 1:
             time.sleep_ms(10)
 
     def _button_wait(self):
-        # Poczekaj na naciśnięcie przycisku
         self._wait_for_button_press()
-        # Oczekiwanie na zwolnienie przycisku
         self._wait_for_button_release()
+
+    def send_data_to_mobile(self, conn_handle, data):
+        self._ble.gatts_write(self._custom_handle, data)
+        self._ble.gatts_notify(conn_handle, self._custom_handle)
 
     def update_heart_rate(self, notify=False):
         if self._heart_rate_counter < 5 and not self._heart_rate_measurement_complete:
-            # Oczekiwanie na naciśnięcie przycisku
             self._button_wait()
 
-            # Construct Heart Rate Measurement data.
-            flags = 0b00000001  # Heart Rate Value Format is set to UINT8.
-            heart_rate_value = random.randint(60, 100)  # Example: generate a random heart rate value.
+            flags = 0b00000001
+            heart_rate_value = random.randint(60, 100)
             heart_rate_measurement = struct.pack("BB", flags, heart_rate_value)
 
-            # Write the local value, ready for a central to read.
             print("write heart rate: %d bpm" % heart_rate_value)
             self._ble.gatts_write(self._hr_handle, heart_rate_measurement)
             if notify:
                 for conn_handle in self._connections:
-                    # Notify connected centrals.
                     self._ble.gatts_notify(conn_handle, self._hr_handle)
 
             self._heart_rate_counter += 1
@@ -131,19 +138,15 @@ class BLEHealthSensor:
 
     def update_blood_glucose(self, notify=False):
         if self._glucose_counter < 5 and not self._glucose_measurement_complete:
-            # Oczekiwanie na naciśnięcie przycisku
             self._button_wait()
 
-            # Construct Blood Glucose Measurement data.
-            glucose_value = random.randint(70, 140)  # Example: generate a random glucose value.
+            glucose_value = random.randint(70, 140)
             glucose_measurement = struct.pack("<H", glucose_value)
 
-            # Write the local value, ready for a central to read.
             print("write blood glucose: %d mg/dL" % glucose_value)
             self._ble.gatts_write(self._bg_handle, glucose_measurement)
             if notify:
                 for conn_handle in self._connections:
-                    # Notify connected centrals.
                     self._ble.gatts_notify(conn_handle, self._bg_handle)
 
             self._glucose_counter += 1
