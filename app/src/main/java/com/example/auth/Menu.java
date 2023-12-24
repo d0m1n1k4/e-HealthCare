@@ -4,46 +4,72 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.view.View;
+import android.util.Log;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
+
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class Menu extends Activity {
+
+
+    private static final String TAG = "Menu";
+    /**
+     * Deklaracja zmiennej requestCodeForEnable przechowującej kod żądania aktywacji Bluetooth.
+     */
+    private int requestCodeForEnable = 1;
     private Button logout, btON, manualButton, bleButton, resultGlucoseButton, resultHeartButton, downloadButton, disableBluetoothButton;
-
     private TextView dashboardTextView;
-    private static final int REQUEST_BLUETOOTH_PERMISSION = 1;
-
-    private BluetoothAdapter myBluetoothAdapter; // Deklaracja zmiennej myBluetoothAdapter do zarządzania funkcjami Bluetooth
-    private boolean isBluetoothEnabled = false;
-
-    Intent btEnablingIntent; // Deklaracja zmiennej btEnablingIntent przechowującej intencję do włączenia Bluetooth.
-    int requestCodeForEnable; // Deklaracja zmiennej requestCodeForEnable przechowującej kod żądania aktywacji Bluetooth
+    /**
+     * Deklaracja zmiennej myBluetoothAdapter do zarządzania funkcjami Bluetooth.
+     */
+    private BluetoothAdapter myBluetoothAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.menu);
 
+        bleButton = findViewById(R.id.bleButton);
         btON = findViewById(R.id.btON);
-        disableBluetoothButton = findViewById(R.id.disableBluetoothButton);
-        myBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-        btEnablingIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-        requestCodeForEnable = 1;
-
-        if (myBluetoothAdapter != null && myBluetoothAdapter.isEnabled()) {
-            isBluetoothEnabled = true;
-            updateBluetoothButtonState();
-        }
-
-        bluetoothONMethod();
-
         dashboardTextView = findViewById(R.id.dashboardTextView);
+        disableBluetoothButton = findViewById(R.id.disableBluetoothButton);
+        downloadButton = findViewById(R.id.downloadButton);
+        logout = findViewById(R.id.logout);
+        manualButton = findViewById(R.id.manualButton);
+        myBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        resultGlucoseButton = findViewById(R.id.resultGlucoseButton);
+        resultHeartButton = findViewById(R.id.resultHeartButton);
+
+        updateBluetoothButtonState(isBluetoothEnabled());
+
+        btON.setOnClickListener(view -> {
+            if (isBluetoothEnabled()) {
+                Toast.makeText(getApplicationContext(), "Bluetooth jest już włączony", Toast.LENGTH_LONG).show();
+            } else {
+                if (!isBluetoothEnabled()) {
+                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
+                        if (requestForPermissions(new String[]{android.Manifest.permission.BLUETOOTH_CONNECT}))
+                            return;
+
+                        requestEnableBluetooth();
+                    } else {
+                        requestEnableBluetooth();
+                    }
+                }
+            }
+        });
+
         // Pobranie nazwy użytkownika (człon przed "@") po zalogowaniu
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         String userEmail = user.getEmail();
@@ -52,110 +78,116 @@ public class Menu extends Activity {
         String welcomeText = "Zalogowany użytkownik: " + username;
         dashboardTextView.setText(welcomeText);
 
-
-        bleButton = findViewById(R.id.bleButton);
-        bleButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(Menu.this, BLEMeasure.class);
-                startActivity(intent);
-            }
+        bleButton.setOnClickListener(v -> {
+            Intent intent = new Intent(Menu.this, BLEMeasure.class);
+            startActivity(intent);
         });
 
-        manualButton = findViewById(R.id.manualButton);
-        manualButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(Menu.this, ManualMeasure.class);
-                startActivity(intent);
-            }
+        manualButton.setOnClickListener(v -> {
+            Intent intent = new Intent(Menu.this, ManualMeasure.class);
+            startActivity(intent);
         });
 
-        resultGlucoseButton = findViewById(R.id.resultGlucoseButton);
-        resultGlucoseButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(Menu.this, GlucoseAnalysis.class);
-                startActivity(intent);
-            }
+        resultGlucoseButton.setOnClickListener(v -> {
+            Intent intent = new Intent(Menu.this, GlucoseAnalysis.class);
+            startActivity(intent);
         });
 
-        resultHeartButton = findViewById(R.id.resultHeartButton);
-        resultHeartButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(Menu.this, HeartAnalysis.class);
-                startActivity(intent);
-            }
+        resultHeartButton.setOnClickListener(v -> {
+            Intent intent = new Intent(Menu.this, HeartAnalysis.class);
+            startActivity(intent);
         });
 
-        downloadButton = findViewById(R.id.downloadButton);
-        downloadButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(Menu.this, DownloadResults.class);
-                startActivity(intent);
-            }
+        downloadButton.setOnClickListener(v -> {
+            Intent intent = new Intent(Menu.this, DownloadResults.class);
+            startActivity(intent);
         });
 
 
-        disableBluetoothButton = findViewById(R.id.disableBluetoothButton);
-        disableBluetoothButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                disableBluetooth();
-            }
-        });
+        disableBluetoothButton.setOnClickListener(v -> disableBluetooth());
 
-        logout = findViewById(R.id.logout);
-        logout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                FirebaseAuth.getInstance().signOut();
-                Intent intent = new Intent(Menu.this, SignIn.class);
-                startActivity(intent);
-                finish();
-            }
+        logout.setOnClickListener(v -> {
+            FirebaseAuth.getInstance().signOut();
+            Intent intent = new Intent(Menu.this, SignIn.class);
+            startActivity(intent);
+            finish();
         });
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if (requestCode == requestCodeForEnable) {
+            for (int i = 0; i < grantResults.length; i++) {
+                int grantResult = grantResults[i];
+
+                if (grantResult != PackageManager.PERMISSION_GRANTED) {
+                    Log.e(TAG, "onRequestPermissionsResult: " + permissions[i] + " not GRANTED! ABORTING!");
+                    return;
+                }
+
+                requestEnableBluetooth();
+            }
+        } else {
+            super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        }
+    }
+
+    @SuppressLint("MissingPermission")
+    private void requestEnableBluetooth() {
+        startActivityForResult(
+                new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE),
+                requestCodeForEnable
+        );
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCodeForEnable == requestCode) {
+            updateBluetoothButtonState(isBluetoothEnabled());
+        } else {
+            super.onActivityResult(requestCode, resultCode, data);
+        }
+    }
+
+    private boolean isBluetoothEnabled() {
+        return myBluetoothAdapter != null && myBluetoothAdapter.isEnabled();
     }
 
     @SuppressLint("MissingPermission")
     private void disableBluetooth() {
-        if (myBluetoothAdapter != null && myBluetoothAdapter.isEnabled()) {
+        if (isBluetoothEnabled()) {
             myBluetoothAdapter.disable();
-            isBluetoothEnabled = false;
-            updateBluetoothButtonState();
+            updateBluetoothButtonState(isBluetoothEnabled());
             Toast.makeText(getApplicationContext(), "Bluetooth został wyłączony", Toast.LENGTH_LONG).show();
         }
     }
 
-
-    private void bluetoothONMethod() {
-        btON.setEnabled(!isBluetoothEnabled);
-        btON.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (isBluetoothEnabled) {
-                    // Jeżeli Bluetooth jest już włączony, wyświetli się komunikat
-                    Toast.makeText(getApplicationContext(), "Bluetooth jest już włączony", Toast.LENGTH_LONG).show();
-                } else {
-                    if (myBluetoothAdapter != null && !myBluetoothAdapter.isEnabled()) {
-                        startActivityForResult(btEnablingIntent, requestCodeForEnable);
-                    }
-                }
-            }
-        });
-    }
-
-
-    private void updateBluetoothButtonState() {
-        if (isBluetoothEnabled) {
+    private void updateBluetoothButtonState(boolean bluetoothEnabled) {
+        if (bluetoothEnabled) {
             btON.setEnabled(false);
+            bleButton.setEnabled(true);
         } else {
-            btON.setText("Uruchom Bluetooth");
             btON.setEnabled(true);
+            bleButton.setEnabled(false);
         }
     }
 
+    private boolean requestForPermissions(String[] permissions1) {
+        List<String> permissionsToRequest = new ArrayList<>();
+
+        for (String permission : permissions1) {
+            if (ActivityCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED) {
+                permissionsToRequest.add(permission);
+            }
+        }
+
+        if (!permissionsToRequest.isEmpty()) {
+            ActivityCompat.requestPermissions(this, permissionsToRequest.toArray(new String[0]), 1);
+            // Zapytanie o uprawnienia BLE
+            return true;
+        }
+
+        return false;
+    }
 
 }
