@@ -1,5 +1,6 @@
 package com.example.auth;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
@@ -27,9 +28,9 @@ import java.util.UUID;
 
 public class BLEMeasure extends Activity {
 
-    private static final String RASPBERRY_ADDRESS = "28:CD:C1:03:EB:9F";
-    private static final UUID MOBILE_APP_SERVICE_UUID = UUID.fromString("c539cece-97a4-11ee-b9d1-0242ac120002");
-    private static final UUID MOBILE_APP_CHAR_UUID = UUID.fromString("c539cece-97a4-11ee-b9d1-0242ac120002");
+    private static final String RASPBERRY_ADDRESS = "28:CD:C1:03:EB:9F";//"C2:A2:78:81:20:C9";
+    private static final UUID MOBILE_APP_SERVICE_UUID = UUID.fromString("00001808-0000-1000-8000-00805f9b34fb");
+    private static final UUID MOBILE_APP_CHAR_UUID = UUID.fromString("00002A18-0000-1000-8000-00805f9b34fb");
 
     private static final long SCAN_PERIOD = 10000;
 
@@ -90,6 +91,7 @@ public class BLEMeasure extends Activity {
 
             if (RASPBERRY_ADDRESS.equals(device.getAddress())) {
                 Log.d("BLEMeasure", "Found Raspberry Pi Pico. Connecting...");
+                stopScan();
                 connectToRaspberry(device);
             }
         }
@@ -172,6 +174,10 @@ public class BLEMeasure extends Activity {
             if (ActivityCompat.checkSelfPermission(this, bluetoothScan) != PackageManager.PERMISSION_GRANTED) {
                 permissionsToRequest.add(bluetoothScan);
             }
+            String bluetoothConnect = Manifest.permission.BLUETOOTH_CONNECT;
+            if (ActivityCompat.checkSelfPermission(this, bluetoothConnect) != PackageManager.PERMISSION_GRANTED) {
+                permissionsToRequest.add(bluetoothConnect);
+            }
         }
 
         if (!permissionsToRequest.isEmpty()) {
@@ -210,7 +216,7 @@ public class BLEMeasure extends Activity {
         }
 
         Log.d("BLEMeasure", "Connecting to Raspberry Pi Pico...");
-        bluetoothGatt = raspberryDevice.connectGatt(BLEMeasure.this, false, gattCallback);
+        bluetoothGatt = raspberryDevice.connectGatt(BLEMeasure.this, true, gattCallback,BluetoothDevice.TRANSPORT_LE);
     }
 
     @SuppressLint("MissingPermission")
