@@ -68,10 +68,10 @@ class BLEHealthSensor:
             self._advertise()
 
     def check_button(self):
-        if self._button.value() == 1 and self._button_state < 2:
+        if self._button.value() == 1:
             self._button_state += 1
             self._data_sent = False
-            time.sleep(0.3)  
+            time.sleep(0.8)  
 
     def update_heart_rate(self, notify=False):
         if not self._data_sent and self._button_state == 1:
@@ -103,10 +103,12 @@ def demo():
     health_sensor = BLEHealthSensor(ble)
     while True:
         health_sensor.check_button()
-        if health_sensor._button_state == 1:
+        if health_sensor._button_state == 1 and not health_sensor._data_sent:
             health_sensor.update_heart_rate(notify=True)
-        elif health_sensor._button_state == 2:
+            health_sensor._data_sent = True
+        elif health_sensor._button_state == 2 and not health_sensor._data_sent:
             health_sensor.update_blood_glucose(notify=True)
+            health_sensor._data_sent = True
         time.sleep_ms(100)
 
 if __name__ == "__main__":
