@@ -49,6 +49,7 @@ class BLEHealthSensor:
         self._connections = set()
         self._button = Pin(0, Pin.IN, Pin.PULL_DOWN)
         self._button_state = 0
+        
         self._data_sent = False
 
         if len(name) == 0:
@@ -69,31 +70,33 @@ class BLEHealthSensor:
 
     def check_button(self):
         if self._button.value() == 1:
-            self._button_state += 1
-            self._data_sent = False
-            time.sleep(0.8)  
+            if self._button_state == 0:
+                self._button_state = 1
+                self._data_sent = False
+            elif self._button_state == 1:
+                self._button_state = 2
+                self._data_sent = False
+            time.sleep(0.8)  # Debouncing
 
-    def update_heart_rate(self, notify=False):
+    def update_heart_rate(self):
         if not self._data_sent and self._button_state == 1:
             heart_rate_value = random.randint(60, 100)
             heart_rate_measurement = struct.pack("<BB", 0, heart_rate_value)
             print("write heart rate: %d bpm" % heart_rate_value)
             self._ble.gatts_write(self._hr_handle, heart_rate_measurement)
-            if notify:
-                for conn_handle in self._connections:
-                    self._ble.gatts_notify(conn_handle, self._hr_handle)
-            self._data_sent = True
+        for conn_handle in self._connections:
+            self._ble.gatts_notify(conn_handle, self._hr_handle)
+        self._data_sent = True
 
-    def update_blood_glucose(self, notify=False):
+    def update_blood_glucose(self):
         if not self._data_sent and self._button_state == 2:
             glucose_value = random.randint(70, 140)
             glucose_measurement = struct.pack("<H", glucose_value)
             print("write blood glucose: %d mg/dL" % glucose_value)
-            self._ble.gatts_write(self._bg_handle, glucose_measurement)
-            if notify:
-                for conn_handle in self._connections:
-                    self._ble.gatts_notify(conn_handle, self._bg_handle)
-            self._data_sent = True
+            self._ble.gatts_write(self._bg_handle, glucose_measurement) 
+        for conn_handle in self._connections:
+            self._ble.gatts_notify(conn_handle, self._bg_handle)
+        self._data_sent = True
 
     def _advertise(self, interval_us=500000):
         self._ble.gap_advertise(interval_us, adv_data=self._payload)
@@ -103,12 +106,10 @@ def demo():
     health_sensor = BLEHealthSensor(ble)
     while True:
         health_sensor.check_button()
-        if health_sensor._button_state == 1 and not health_sensor._data_sent:
-            health_sensor.update_heart_rate(notify=True)
-            health_sensor._data_sent = True
-        elif health_sensor._button_state == 2 and not health_sensor._data_sent:
-            health_sensor.update_blood_glucose(notify=True)
-            health_sensor._data_sent = True
+        if health_sensor._button_state == 1:
+            health_sensor.update_heart_rate()
+        elif health_sensor._button_state == 2:
+            health_sensor.update_blood_glucose()
         time.sleep_ms(100)
 
 if __name__ == "__main__":
