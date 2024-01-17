@@ -154,7 +154,7 @@ public class HeartAnalysis extends FragmentActivity {
 
     private void initHeartRateChart(LineChart chart, String chartTitle) {
         YAxis leftAxis = chart.getAxisLeft();
-        leftAxis.setGranularity(1f); // Skok na osi Y
+        leftAxis.setGranularity(1f);
         leftAxis.setSpaceTop(50f);
         chart.getAxisRight().setEnabled(false);
 
@@ -163,19 +163,17 @@ public class HeartAnalysis extends FragmentActivity {
         chart.setNoDataText("Brak danych do wyświetlenia.");
         chart.setBackgroundColor(Color.WHITE);
 
-        // Utworzenie zestawu danych dla wykresu pulsu
         heartRateDataSet = new LineDataSet(new ArrayList<Entry>(), chartTitle);
         heartRateDataSet.setColor(Color.BLACK);
         heartRateDataSet.setCircleColor(Color.BLACK);
-        heartRateDataSet.setDrawFilled(false); // Wyłączenie wypełniania obszaru pod linią
+        heartRateDataSet.setDrawFilled(false);
         heartRateDataSet.setValueTextSize(10f);
 
-        // Ustawienie etykiet na osi X
         xAxis = chart.getXAxis();
         xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
-        xAxis.setGranularity(1f); // Skok na osi X
+        xAxis.setGranularity(1f);
         xAxis.setValueFormatter(new IndexAxisValueFormatter(new String[]{"", "g. 08:00", "g. 11:00", "g. 14:00", "g. 17:00", "g. 20:00"}));
-        xAxis.setAxisMinimum(0.5f); // Minimalna wartość na osi X
+        xAxis.setAxisMinimum(0.5f);
         xAxis.setAxisMaximum(5.5f);
 
         LimitLine lowerLimitLine = new LimitLine(60f, "<60 bpm");
