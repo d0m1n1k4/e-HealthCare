@@ -15,13 +15,13 @@ import android.bluetooth.BluetoothProfile;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
@@ -33,17 +33,9 @@ import java.util.UUID;
 
 public class BLEMeasure extends Activity {
 
-    private String selectedDate = "";
-    private TextView selectedDateTextView;
-
-    private TextView measurementValueTextView;
     private static final String RASPBERRY_ADDRESS = "28:CD:C1:03:EB:9F";
-    private static final UUID MOBILE_APP_SERVICE_UUID = UUID.fromString("00001808-0000-1000-8000-00805f9b34fb");
-    private static final UUID MOBILE_APP_CHAR_UUID = UUID.fromString("00002A18-0000-1000-8000-00805f9b34fb");
-
-    private static final long SCAN_PERIOD = 10000;
-
-    private static final String TAG = "BLEMeasure";
+    private static final UUID HEART_RATE_SERVICE_UUID = UUID.fromString("00001808-0000-1000-8000-00805f9b34fb");
+    private static final UUID HEART_RATE_CHAR_UUID = UUID.fromString("00002A18-0000-1000-8000-00805f9b34fb");
 
     private final String[] permissions = {
             android.Manifest.permission.ACCESS_FINE_LOCATION,
@@ -54,33 +46,58 @@ public class BLEMeasure extends Activity {
     private List<String> permissionsToRequest;
     private BluetoothAdapter bluetoothAdapter;
     private BluetoothGatt bluetoothGatt;
+    private String selectedDate = "";
+    private TextView selectedDateTextView;
+
+    private TextView measurementValueTextView;
+
+    private static final long SCAN_PERIOD = 10000;
+
+    private static final String TAG = "BLEMeasure";
 
     private boolean connectedWithDevice = false;
 
     private final BluetoothGattCallback gattCallback = new BluetoothGattCallback() {
         @SuppressLint("MissingPermission")
+
         @Override
         public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
             runOnUiThread(() -> {
                 if (newState == BluetoothProfile.STATE_CONNECTED) {
                     connectedWithDevice = true;
-
-                    Toast.makeText(BLEMeasure.this, "Connected to Raspberry Pi Pico", Toast.LENGTH_SHORT).show();
                     Log.d("BLEMeasure", "Connected to Raspberry Pi Pico");
-
-                    BluetoothGattService service = gatt.getService(MOBILE_APP_SERVICE_UUID);
-                    BluetoothGattCharacteristic characteristic = service.getCharacteristic(MOBILE_APP_CHAR_UUID);
-
-                    gatt.readCharacteristic(characteristic);
+                    // Odkrywanie usług po połączeniu
+                    gatt.discoverServices();
                 } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
                     connectedWithDevice = false;
-
-                    Toast.makeText(BLEMeasure.this, "Disconnected from Raspberry Pi Pico", Toast.LENGTH_SHORT).show();
                     Log.d("BLEMeasure", "Disconnected from Raspberry Pi Pico");
-                } else
-                    Log.d(TAG, "onConnectionStateChange() called with: gatt = [" + gatt + "], status = [" + status + "], newState = [" + newState + "]");
+                }
             });
         }
+
+        //Metoda wywoływana, gdy usługi BLE są odkrywane na Raspberry
+        @Override
+        public void onServicesDiscovered(BluetoothGatt gatt, int status) {
+            //sprawdzenie, czy odkrywanie GATT zakończyło się sukcesem
+            if (status == BluetoothGatt.GATT_SUCCESS) {
+                //pobieranie charakterystyki UUID dla tętna
+                BluetoothGattService service = gatt.getService(HEART_RATE_SERVICE_UUID);
+                if (service != null) {
+                    BluetoothGattCharacteristic characteristic = service.getCharacteristic(HEART_RATE_CHAR_UUID);
+                    if (characteristic != null) {
+                        if (ActivityCompat.checkSelfPermission(BLEMeasure.this, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
+                            return;
+                        }
+                        gatt.readCharacteristic(characteristic);
+                    } else {
+                        Log.e("BLEMeasure", "Heart Rate Characteristic not found");
+                    }
+                } else {
+                    Log.e("BLEMeasure", "Heart Rate Service not found");
+                }
+            }
+        }
+
 
         @Override
         public void onCharacteristicRead(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
@@ -137,6 +154,7 @@ public class BLEMeasure extends Activity {
             @Override
             public void onClick(View v) {
                 measurementValueTextView.setText("125");
+                measurementValueTextView.setTextColor(Color.BLACK);
                 measurementValueTextView.setVisibility(View.VISIBLE);
             }
         });
