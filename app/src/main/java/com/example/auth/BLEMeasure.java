@@ -3,6 +3,7 @@ package com.example.auth;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.DatePickerDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
@@ -14,27 +15,27 @@ import android.bluetooth.BluetoothProfile;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.Button;
-import android.widget.Toast;
+import android.widget.DatePicker;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 import java.util.UUID;
 
 public class BLEMeasure extends Activity {
 
     private static final String RASPBERRY_ADDRESS = "28:CD:C1:03:EB:9F";
-    private static final UUID MOBILE_APP_SERVICE_UUID = UUID.fromString("00001808-0000-1000-8000-00805f9b34fb");
-    private static final UUID MOBILE_APP_CHAR_UUID = UUID.fromString("00002A18-0000-1000-8000-00805f9b34fb");
-
-    private static final long SCAN_PERIOD = 10000;
-
-    private static final String TAG = "BLEMeasure";
+    private static final UUID HEART_RATE_SERVICE_UUID = UUID.fromString("00001808-0000-1000-8000-00805f9b34fb");
+    private static final UUID HEART_RATE_CHAR_UUID = UUID.fromString("00002A18-0000-1000-8000-00805f9b34fb");
 
     private final String[] permissions = {
             android.Manifest.permission.ACCESS_FINE_LOCATION,
@@ -45,34 +46,58 @@ public class BLEMeasure extends Activity {
     private List<String> permissionsToRequest;
     private BluetoothAdapter bluetoothAdapter;
     private BluetoothGatt bluetoothGatt;
+    private String selectedDate = "";
+    private TextView selectedDateTextView;
+
+    private TextView measurementValueTextView;
+
+    private static final long SCAN_PERIOD = 10000;
+
+    private static final String TAG = "BLEMeasure";
 
     private boolean connectedWithDevice = false;
 
     private final BluetoothGattCallback gattCallback = new BluetoothGattCallback() {
         @SuppressLint("MissingPermission")
+
         @Override
         public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
             runOnUiThread(() -> {
                 if (newState == BluetoothProfile.STATE_CONNECTED) {
                     connectedWithDevice = true;
-
-                    Toast.makeText(BLEMeasure.this, "Connected to Raspberry Pi Pico", Toast.LENGTH_SHORT).show();
                     Log.d("BLEMeasure", "Connected to Raspberry Pi Pico");
-
-                    Toast.makeText(BLEMeasure.this, "Connected to Raspberry Pi Pico", Toast.LENGTH_SHORT).show();
-                    BluetoothGattService service = gatt.getService(MOBILE_APP_SERVICE_UUID);
-                    BluetoothGattCharacteristic characteristic = service.getCharacteristic(MOBILE_APP_CHAR_UUID);
-
-                    gatt.readCharacteristic(characteristic);
-                    Toast.makeText(BLEMeasure.this, "Connected to Raspberry Pi Pico", Toast.LENGTH_SHORT).show();
+                    // Odkrywanie usług po połączeniu
+                    gatt.discoverServices();
                 } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
                     connectedWithDevice = false;
-
-                    Toast.makeText(BLEMeasure.this, "Disconnected from Raspberry Pi Pico", Toast.LENGTH_SHORT).show();
                     Log.d("BLEMeasure", "Disconnected from Raspberry Pi Pico");
                 }
             });
         }
+
+        //Metoda wywoływana, gdy usługi BLE są odkrywane na Raspberry
+        @Override
+        public void onServicesDiscovered(BluetoothGatt gatt, int status) {
+            //sprawdzenie, czy odkrywanie GATT zakończyło się sukcesem
+            if (status == BluetoothGatt.GATT_SUCCESS) {
+                //pobieranie charakterystyki UUID dla tętna
+                BluetoothGattService service = gatt.getService(HEART_RATE_SERVICE_UUID);
+                if (service != null) {
+                    BluetoothGattCharacteristic characteristic = service.getCharacteristic(HEART_RATE_CHAR_UUID);
+                    if (characteristic != null) {
+                        if (ActivityCompat.checkSelfPermission(BLEMeasure.this, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
+                            return;
+                        }
+                        gatt.readCharacteristic(characteristic);
+                    } else {
+                        Log.e("BLEMeasure", "Heart Rate Characteristic not found");
+                    }
+                } else {
+                    Log.e("BLEMeasure", "Heart Rate Service not found");
+                }
+            }
+        }
+
 
         @Override
         public void onCharacteristicRead(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
@@ -105,7 +130,17 @@ public class BLEMeasure extends Activity {
         setContentView(R.layout.ble_measure);
 
         Button bleMeasurementBackButton = findViewById(R.id.bleMeasurementBackButton);
+        measurementValueTextView = findViewById(R.id.measurementValueTextView);
+        Button heart1Button = findViewById(R.id.heart1Button);
         Button connectToRaspberryButton = findViewById(R.id.connectToRaspberryButton);
+        Button datePickerButton = findViewById(R.id.datePickerButton);
+        selectedDateTextView = findViewById(R.id.selectedDateTextView);
+        datePickerButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showDatePickerDialog();
+            }
+        });
 
         BluetoothManager bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
         bluetoothAdapter = bluetoothManager.getAdapter();
@@ -115,6 +150,16 @@ public class BLEMeasure extends Activity {
             startActivity(intent);
         });
 
+        heart1Button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                measurementValueTextView.setText("125");
+                measurementValueTextView.setTextColor(Color.BLACK);
+                measurementValueTextView.setVisibility(View.VISIBLE);
+            }
+        });
+
+
         connectToRaspberryButton.setOnClickListener(v -> {
             if (connectedWithDevice) {
                 disconnectBluetoothGatt();
@@ -123,8 +168,13 @@ public class BLEMeasure extends Activity {
             }
         });
 
+
+
         startScan();
+
+
     }
+
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
@@ -218,7 +268,7 @@ public class BLEMeasure extends Activity {
         }
 
         Log.d("BLEMeasure", "Connecting to Raspberry Pi Pico...");
-        bluetoothGatt = raspberryDevice.connectGatt(BLEMeasure.this, true, gattCallback,BluetoothDevice.TRANSPORT_LE);
+        bluetoothGatt = raspberryDevice.connectGatt(BLEMeasure.this, true, gattCallback, BluetoothDevice.TRANSPORT_LE);
     }
 
     @SuppressLint("MissingPermission")
@@ -240,5 +290,23 @@ public class BLEMeasure extends Activity {
             bluetoothAdapter.stopLeScan(leScanCallback);
             Log.d("BLEMeasure", "Bluetooth LE scan stopped.");
         }
+    }
+
+    private void showDatePickerDialog() {
+        // Pobieranie aktualnej daty
+        Calendar calendar = Calendar.getInstance();
+        int year = calendar.get(Calendar.YEAR);
+        int month = calendar.get(Calendar.MONTH);
+        int day = calendar.get(Calendar.DAY_OF_MONTH);
+
+        DatePickerDialog datePickerDialog = new DatePickerDialog(this, new DatePickerDialog.OnDateSetListener() {
+            @Override
+            public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
+                // Aktualizacja wybranej daty
+                selectedDate = year + "-" + (month + 1) + "-" + dayOfMonth;
+                selectedDateTextView.setText("Data pomiaru: " + selectedDate);
+            }
+        }, year, month, day);
+        datePickerDialog.show();
     }
 }
